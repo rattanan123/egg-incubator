@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Egg Incubator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0e0f11; --surface:  #161719; --surface2: #1e2023;
+      --border:   rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text:     #f0f0ef; --muted:    #6b6e74; --accent:   #e8e0c8;
+      --green:    #4ade80; --green-bg: rgba(74,222,128,0.08);
+      --red:      #f87171; --red-bg:   rgba(248,113,113,0.08);
+      --blue:     #60a5fa; --amber:    #fbbf24;
+      --radius:   14px;    --radius-sm: 8px;
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+      padding: 16px 14px 48px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 960px; margin: 0 auto 20px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 16px; font-weight: 500; }
+    .logo-sub  { font-size: 12px; color: var(--muted); }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .online-pill {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 99px; padding: 5px 12px;
+    }
+    .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
+    .online-dot.warn  { background: var(--amber); }
+    .online-dot.error { background: var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .mode-pill {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      padding: 5px 12px; border-radius: 99px;
+      border: 1px solid var(--border2); background: var(--surface2); color: var(--accent);
+    }
+
+    /* ── Layout ── */
+    .wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Banner ── */
+    .banner { display: none; border-radius: var(--radius); padding: 14px 18px; font-size: 14px; line-height: 1.5; }
+    .banner.show { display: block; }
+    .banner-red   { background: var(--red-bg);          border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+    .banner-amber { background: rgba(251,191,36,0.08);   border: 1px solid rgba(251,191,36,0.3);  color: var(--amber); }
+
+    /* ── System Card ── */
+    .system-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
+    .system-card.running { border-color: rgba(74,222,128,0.3); }
+    .system-card.stopped { border-color: rgba(248,113,113,0.25); }
+    .system-top { display: flex; align-items: center; margin-bottom: 18px; gap: 10px; }
+    .system-status { display: flex; align-items: center; gap: 10px; }
+    .system-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .system-dot.run  { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s ease-in-out infinite; }
+    .system-dot.stop { background: var(--red); }
+    .system-label { font-size: 15px; font-weight: 500; }
+    .system-sub   { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-label { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; font-weight: 500; }
+    .input-wrap  { position: relative; }
+    .input-field {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: var(--radius-sm); padding: 13px 44px 13px 14px;
+      font-family: 'DM Mono', monospace; font-size: 18px; color: var(--text);
+      outline: none; transition: border-color 0.15s;
+      -webkit-appearance: none; appearance: none;
+    }
+    .input-field:focus { border-color: rgba(255,255,255,0.3); }
+    .input-field.error { border-color: rgba(248,113,113,0.6); background: rgba(248,113,113,0.05); }
+    .input-field.valid { border-color: rgba(74,222,128,0.4); }
+    .input-field:disabled { opacity: 0.4; cursor: not-allowed; }
+    .input-unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; pointer-events: none; }
+    .input-hint { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .input-hint.err { color: var(--red); }
+
+    .system-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .btn-start {
+      font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
+      padding: 12px 28px; border-radius: 99px; cursor: pointer; transition: all 0.2s;
+      background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.4);
+      min-width: 130px; text-align: center;
+    }
+    .btn-start:hover:not(:disabled) { background: rgba(74,222,128,0.22); }
+    .btn-start:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-stop {
+      font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
+      padding: 12px 28px; border-radius: 99px; cursor: pointer; transition: all 0.2s;
+      background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.4);
+      min-width: 130px; text-align: center;
+    }
+    .btn-stop:hover { background: rgba(248,113,113,0.22); }
+
+    /* ── Metrics ── */
+    .metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metric-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 18px 16px;
+      position: relative; overflow: hidden;
+    }
+    .metric-card::before { content:''; position:absolute; inset:0; border-radius:var(--radius); pointer-events:none; }
+    .metric-card.warn::before { box-shadow: inset 0 0 0 1.5px rgba(248,113,113,0.35); }
+    .metric-card.ok::before   { box-shadow: inset 0 0 0 1.5px rgba(74,222,128,0.25); }
+    .metric-label { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; font-weight: 500; }
+    .metric-value { font-family: 'DM Mono', monospace; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -0.03em; }
+    .metric-value.ok   { color: var(--green); }
+    .metric-value.warn { color: var(--red); }
+    .metric-unit  { font-size: 14px; color: var(--muted); margin-top: 8px; }
+    .metric-range { position: absolute; bottom: 14px; right: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.6; }
+
+    /* ── Bottom Grid ── */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
+    .card-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; font-weight: 500; }
+    .relay-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .relay-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 10px; border-radius: var(--radius-sm); }
+    .relay-row:hover { background: var(--surface2); }
+    .relay-name { font-size: 14px; }
+    .badge { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 99px; }
+    .badge.on  { background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+    .badge.off { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .servo-vals { display: flex; flex-direction: column; gap: 14px; }
+    .servo-row { display: flex; justify-content: space-between; align-items: center; }
+    .servo-key { font-size: 14px; color: var(--muted); }
+    .servo-val { font-family: 'DM Mono', monospace; font-size: 16px; }
+
+    /* ── Chart ── */
+    .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .chart-legend { display: flex; gap: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .legend-dot  { width: 9px; height: 9px; border-radius: 50%; }
+
+    /* ── Log ── */
+    .log-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; overflow-x: auto; }
+    .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+    .log-header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn-clear {
+      font-family: 'DM Mono', monospace; font-size: 12px; padding: 6px 16px;
+      border-radius: 99px; border: 1px solid rgba(248,113,113,0.35);
+      background: rgba(248,113,113,0.07); color: var(--red); cursor: pointer; transition: all 0.15s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-clear:hover { background: rgba(248,113,113,0.15); }
+    table { width: 100%; border-collapse: collapse; min-width: 460px; }
+    thead th {
+      font-size: 11px; letter-spacing: 0.07em; color: var(--muted); text-transform: uppercase;
+      text-align: left; padding: 0 10px 12px; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { font-size: 13px; padding: 11px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    .td-mono  { font-family: 'DM Mono', monospace; }
+    .td-muted { color: var(--muted); }
+    .dot-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 99px;
+    }
+    .dot-badge.on  { background: var(--green-bg); color: var(--green); }
+    .dot-badge.off { background: var(--surface2); color: var(--muted); }
+    .dot-badge::before { content:''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ── Dialog ── */
+    .dialog-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:100; align-items:center; justify-content:center; padding: 16px; }
+    .dialog-overlay.show { display: flex; }
+    .dialog-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 18px; padding: 28px 24px 24px; max-width: 360px; width: 100%; }
+    .dialog-icon  { font-size: 32px; margin-bottom: 14px; }
+    .dialog-title { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+    .dialog-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+    .dialog-btns  { display: flex; gap: 10px; justify-content: flex-end; }
+    .dialog-cancel {
+      font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 20px;
+      border-radius: 99px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer;
+    }
+    .dialog-confirm {
+      font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 20px;
+      border-radius: 99px; border: 1px solid rgba(248,113,113,0.5); background: rgba(248,113,113,0.12); color: var(--red); cursor: pointer;
+    }
+    .dialog-confirm:hover { background: rgba(248,113,113,0.25); }
+
+    /* ── Responsive: Tablet (≤768px) ── */
+    @media (max-width: 768px) {
+      body { padding: 14px 12px 48px; }
+      .metric-value { font-size: 52px; }
+      .relay-name { font-size: 14px; }
+    }
+
+    /* ── Responsive: Mobile (≤480px) ── */
+    @media (max-width: 480px) {
+      body { padding: 12px 10px 48px; }
+      .wrap { gap: 12px; }
+
+      /* Header */
+      header { margin-bottom: 16px; }
+      .logo-text { font-size: 15px; }
+      .mode-pill { display: none; } /* ซ่อน mode pill บนมือถือเล็กมาก */
+
+      /* System card */
+      .system-card { padding: 16px 14px; }
+      .system-label { font-size: 15px; }
+      .input-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .input-field { font-size: 20px; padding: 14px 44px 14px 14px; }
+      .input-label { font-size: 11px; }
+      .btn-start, .btn-stop { font-size: 15px; padding: 13px 0; width: 100%; min-width: unset; }
+      .system-btns { flex-direction: column; }
+
+      /* Metrics — ชิดกันได้ในมือถือ */
+      .metrics-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .metric-card { padding: 16px 14px 32px; }
+      .metric-value { font-size: 44px; }
+      .metric-label { font-size: 11px; }
+      .metric-unit  { font-size: 12px; }
+      .metric-range { font-size: 9px; bottom: 10px; right: 10px; }
+
+      /* Bottom grid — stack บนมือถือ */
+      .bottom-grid { grid-template-columns: 1fr; }
+      .relay-name { font-size: 15px; }
+      .relay-row  { padding: 11px 10px; }
+      .badge { font-size: 12px; padding: 5px 12px; }
+      .servo-key { font-size: 14px; }
+      .servo-val { font-size: 17px; }
+
+      /* Log table — scroll แนวนอน */
+      .log-wrap { padding: 16px 14px; }
+      thead th { font-size: 10px; padding: 0 8px 10px; }
+      tbody td { font-size: 12px; padding: 10px 8px; }
+
+      /* Chart */
+      .chart-wrap { padding: 16px 14px; }
+      .legend-item { font-size: 11px; }
+
+      /* Card */
+      .card { padding: 16px 14px; }
+      .card-title { font-size: 11px; }
+    }
+
+    /* ── Responsive: Very small (≤360px) ── */
+    @media (max-width: 360px) {
+      .metric-value { font-size: 38px; }
+      .input-field  { font-size: 18px; }
+      .logo-sub     { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🥚</div>
+    <div><div class="logo-text">Egg Incubator</div><div class="logo-sub">ESP32 · Firebase</div></div>
+  </div>
+  <div class="header-right">
+    <div class="online-pill"><div class="online-dot" id="online-dot"></div><span id="online-text">connecting…</span></div>
+    <div class="mode-pill" id="mode-pill">--</div>
+  </div>
+</header>
+
+<!-- Dialog ล้าง log รายชั่วโมง -->
+<div class="dialog-overlay" id="confirm-overlay">
+  <div class="dialog-box">
+    <div class="dialog-icon">🗑️</div>
+    <div class="dialog-title">ล้าง Log รายชั่วโมง?</div>
+    <div class="dialog-desc">ข้อมูลทั้งหมดจะถูกลบออกจาก Firebase ไม่สามารถกู้คืนได้</div>
+    <div class="dialog-btns">
+      <button class="dialog-cancel" onclick="closeDialog()">ยกเลิก</button>
+      <button class="dialog-confirm" onclick="confirmClearHourly()">ลบทั้งหมด</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Banner เซ็นเซอร์พัง -->
+  <div class="banner banner-red" id="sensor-banner">
+    🚨 เซ็นเซอร์อุณหภูมิขัดข้อง — ESP32 ปิด Relay ทั้งหมดเพื่อความปลอดภัย กรุณาตรวจสอบสายเซ็นเซอร์
+  </div>
+
+  <!-- System Control Card -->
+  <div class="system-card" id="system-card">
+    <div class="system-top">
+      <div class="system-status">
+        <div class="system-dot stop" id="system-dot"></div>
+        <div>
+          <div class="system-label" id="system-label">ระบบพร้อมทำงาน</div>
+          <div class="system-sub"   id="system-sub">กรอกค่าอุณหภูมิและความชื้นเพื่อเริ่ม</div>
+        </div>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <div class="input-label">อุณหภูมิเป้าหมาย</div>
+        <div class="input-wrap">
+          <input class="input-field" type="number" id="inp-temp" placeholder="37.5" min="30" max="42" step="0.1" oninput="validateInputs()">
+          <span class="input-unit">°C</span>
+        </div>
+        <div class="input-hint" id="hint-temp">ช่วงปกติ 35 – 39 °C</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">ความชื้นเป้าหมาย</div>
+        <div class="input-wrap">
+          <input class="input-field" type="number" id="inp-hum" placeholder="55" min="30" max="90" step="1" oninput="validateInputs()">
+          <span class="input-unit">%</span>
+        </div>
+        <div class="input-hint" id="hint-hum">ช่วงปกติ 50 – 65 %</div>
+      </div>
+    </div>
+    <div class="banner banner-amber" id="val-banner" style="margin-bottom:12px;">
+      ⚠️ กรุณากรอกค่าอุณหภูมิและความชื้นให้ครบก่อนเริ่มระบบ
+    </div>
+    <div class="system-btns">
+      <button class="btn-start" id="btn-start" onclick="startSystem()" disabled>▶ เริ่มทำงาน</button>
+      <button class="btn-stop"  id="btn-stop"  onclick="stopSystem()"  style="display:none;">⏹ หยุดทำงาน</button>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics-row">
+    <div class="metric-card" id="card-temp">
+      <div class="metric-label">อุณหภูมิ</div>
+      <div class="metric-value" id="temp">--</div>
+      <div class="metric-unit">degree Celsius</div>
+      <div class="metric-range" id="range-temp">ปกติ 35 – 39 °C</div>
+    </div>
+    <div class="metric-card" id="card-hum">
+      <div class="metric-label">ความชื้นสัมพัทธ์</div>
+      <div class="metric-value" id="humidity">--</div>
+      <div class="metric-unit">percent</div>
+      <div class="metric-range" id="range-hum">ปกติ 50 – 65 %</div>
+    </div>
+  </div>
+
+  <!-- Relay + Servo -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-title">สถานะ Relay</div>
+      <ul class="relay-list">
+        <li class="relay-row"><span class="relay-name">หมอก</span>      <span class="badge off" id="r-fog">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">พัดลมหลัก</span> <span class="badge off" id="r-fanMain">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">พัดลม 3</span>   <span class="badge off" id="r-fan3">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">พัดลมเสริม</span><span class="badge off" id="r-fan4">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">ฮีตเตอร์</span>  <span class="badge off" id="r-heater">OFF</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Servo</div>
+      <div class="servo-vals">
+        <div class="servo-row"><span class="servo-key">สถานะ</span><span class="servo-val" id="servoStatus">--</span></div>
+        <div class="servo-row"><span class="servo-key">มุม</span><span class="servo-val"><span id="servoPosition">--</span>°</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap">
+    <div class="chart-header">
+      <div class="card-title" style="margin:0;">กราฟย้อนหลัง 24 ชั่วโมง</div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80;"></div>อุณหภูมิ (°C)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#60a5fa;"></div>ความชื้น (%)</div>
+      </div>
+    </div>
+    <canvas id="historyChart" height="110"></canvas>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;" id="chart-note">กำลังโหลด...</div>
+  </div>
+
+  <!-- System Log -->
+  <div class="log-wrap">
+    <div class="log-header">
+      <div class="log-header-left">
+        <div class="card-title" style="margin:0;">บันทึกการเปิด/ปิดระบบ</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;" id="syslog-updated">--</div>
+      </div>
+      <button class="btn-clear" onclick="clearSystemLog()">ล้าง</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:150px;">วันที่ / เวลา</th>
+        <th style="width:90px;">การกระทำ</th>
+        <th style="width:110px;">เป้าหมาย °C</th>
+        <th>เป้าหมาย %</th>
+      </tr></thead>
+      <tbody id="system-logs"></tbody>
+    </table>
+  </div>
+
+  <!-- Hourly Log -->
+  <div class="log-wrap">
+    <div class="log-header">
+      <div class="log-header-left">
+        <div class="card-title" style="margin:0;">บันทึกรายชั่วโมง</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;" id="log-updated">--</div>
+      </div>
+      <button class="btn-clear" onclick="openDialog()">ล้าง Log</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:130px;">วันที่ / เวลา</th>
+        <th style="width:55px;">°C</th><th style="width:50px;">%RH</th>
+        <th style="width:65px;">Mode</th><th style="width:65px;">หมอก</th>
+        <th style="width:65px;">พัดลม 3</th><th style="width:70px;">ฮีตเตอร์</th>
+        <th style="width:70px;">Servo°</th><th>สถานะ Servo</th>
+      </tr></thead>
+      <tbody id="logs"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, onValue, remove, update, set, query, limitToLast }
+  from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCnBjSbD4zZpc-t0QfK7i5PlfQfuSgdyRw",
+  authDomain:        "eggproject-cf0bc.firebaseapp.com",
+  databaseURL:       "https://eggproject-cf0bc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "eggproject-cf0bc",
+  storageBucket:     "eggproject-cf0bc.firebasestorage.app",
+  messagingSenderId: "630146139668",
+  appId:             "1:630146139668:web:58b60cbbeb16b6ad7c0901"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ===== Chart =====
+const historyChart = new Chart(
+  document.getElementById('historyChart').getContext('2d'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { label:'อุณหภูมิ (°C)', data:[], borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#4ade80', tension:0.3, fill:true, yAxisID:'yTemp' },
+    { label:'ความชื้น (%)',  data:[], borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.06)',  borderWidth:2, pointRadius:3, pointBackgroundColor:'#60a5fa', tension:0.3, fill:true, yAxisID:'yHum'  }
+  ]},
+  options: {
+    responsive:true, interaction:{ mode:'index', intersect:false },
+    plugins: { legend:{display:false}, tooltip:{ backgroundColor:'#1e2023', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, titleColor:'#6b6e74', bodyColor:'#f0f0ef', padding:10, titleFont:{family:"'DM Mono',monospace",size:11}, bodyFont:{family:"'DM Mono',monospace",size:12} } },
+    scales: {
+      x: { ticks:{color:'#6b6e74',font:{family:"'DM Mono',monospace",size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8}, grid:{color:'rgba(255,255,255,0.04)'} },
+      yTemp: { position:'left',  min:30, max:45, ticks:{color:'#4ade80',font:{family:"'DM Mono',monospace",size:10},callback:v=>v+'°'}, grid:{color:'rgba(255,255,255,0.04)'} },
+      yHum:  { position:'right', min:40, max:80, ticks:{color:'#60a5fa',font:{family:"'DM Mono',monospace",size:10},callback:v=>v+'%'}, grid:{display:false} }
+    }
+  }
+});
+
+// ===== Helpers =====
+function setRelayBadge(id, val) {
+  const el = document.getElementById(id); if (!el) return;
+  const on = val === "ON";
+  el.textContent = on ? "ON" : "OFF";
+  el.className   = "badge " + (on ? "on" : "off");
+}
+
+function setMetric(cardId, valId, raw, lo, hi) {
+  const el = document.getElementById(valId), card = document.getElementById(cardId);
+  if (!el) return;
+  const num = parseFloat(raw);
+  el.textContent = isNaN(num) ? "--" : num.toFixed(1);
+  if (isNaN(num)) { el.className="metric-value"; card.className="metric-card"; return; }
+  const warn = num>hi || num<lo;
+  el.className   = "metric-value "+(warn?"warn":"ok");
+  card.className = "metric-card " +(warn?"warn":"ok");
+}
+
+function fmtDate(ms) {
+  const dt = new Date(ms);
+  return {
+    date: dt.toLocaleDateString("th-TH",  {day:"2-digit",month:"2-digit",year:"2-digit"}),
+    time: dt.toLocaleTimeString("th-TH",   {hour:"2-digit",minute:"2-digit"})
+  };
+}
+
+// ===== Online Watchdog =====
+let lastUpdateTime = 0;
+setInterval(() => {
+  if (!lastUpdateTime) return;
+  const elapsed = Date.now() - lastUpdateTime;
+  const dot = document.getElementById('online-dot'), txt = document.getElementById('online-text');
+  if      (elapsed > 120000) { dot.className='online-dot error'; txt.textContent='offline'; }
+  else if (elapsed > 30000)  { dot.className='online-dot warn';  txt.textContent='ไม่ตอบสนอง'; }
+}, 10000);
+
+// ===== System Start/Stop =====
+let currentState = "STOP";
+
+function validateInputs() {
+  const tEl=document.getElementById('inp-temp'), hEl=document.getElementById('inp-hum');
+  const tV=parseFloat(tEl.value), hV=parseFloat(hEl.value);
+  const hintT=document.getElementById('hint-temp'), hintH=document.getElementById('hint-hum');
+  const btn=document.getElementById('btn-start'), banner=document.getElementById('val-banner');
+  let tOk=false, hOk=false;
+
+  if (!tEl.value) { tEl.className='input-field'; hintT.className='input-hint'; hintT.textContent='ช่วงปกติ 35 – 39 °C'; }
+  else if (isNaN(tV)||tV<30||tV>42) { tEl.className='input-field error'; hintT.className='input-hint err'; hintT.textContent='ค่าต้องอยู่ระหว่าง 30 – 42 °C'; }
+  else { tEl.className='input-field valid'; hintT.className='input-hint'; hintT.textContent=(tV<35||tV>39)?'⚠️ นอกช่วงปกติ':'✓ อยู่ในช่วงปกติ'; tOk=true; }
+
+  if (!hEl.value) { hEl.className='input-field'; hintH.className='input-hint'; hintH.textContent='ช่วงปกติ 50 – 65 %'; }
+  else if (isNaN(hV)||hV<30||hV>90) { hEl.className='input-field error'; hintH.className='input-hint err'; hintH.textContent='ค่าต้องอยู่ระหว่าง 30 – 90 %'; }
+  else { hEl.className='input-field valid'; hintH.className='input-hint'; hintH.textContent=(hV<50||hV>65)?'⚠️ นอกช่วงปกติ':'✓ อยู่ในช่วงปกติ'; hOk=true; }
+
+  const ok = tOk && hOk;
+  btn.disabled = !ok;
+  banner.classList.toggle('show', !ok && !!(tEl.value||hEl.value));
+  return ok;
+}
+
+function updateSystemUI(state) {
+  currentState = state;
+  const dot=document.getElementById('system-dot'), label=document.getElementById('system-label');
+  const sub=document.getElementById('system-sub'), card=document.getElementById('system-card');
+  const btnS=document.getElementById('btn-start'), btnE=document.getElementById('btn-stop');
+  const tEl=document.getElementById('inp-temp'), hEl=document.getElementById('inp-hum');
+
+  if (state === "RUN") {
+    dot.className='system-dot run'; label.textContent='ระบบทำงาน'; card.className='system-card running';
+    const t=tEl.value, h=hEl.value;
+    sub.textContent = t&&h ? `เป้าหมาย ${parseFloat(t).toFixed(1)}°C / ${parseFloat(h).toFixed(1)}%` : 'state: RUN';
+    btnS.style.display='none'; btnE.style.display='';
+    tEl.disabled=true; hEl.disabled=true;
+    // อัปเดต range บน metric card ตามค่าที่ตั้ง
+    if (t) document.getElementById('range-temp').textContent = `เป้าหมาย ${parseFloat(t).toFixed(1)}°C`;
+    if (h) document.getElementById('range-hum').textContent  = `เป้าหมาย ${parseFloat(h).toFixed(1)}%`;
+  } else {
+    dot.className='system-dot stop'; label.textContent='ระบบหยุด'; card.className='system-card stopped';
+    sub.textContent='กรอกค่าเพื่อเริ่มทำงานใหม่';
+    btnS.style.display=''; btnE.style.display='none';
+    btnS.disabled=true; tEl.disabled=false; hEl.disabled=false;
+    document.getElementById('range-temp').textContent='ปกติ 35 – 39 °C';
+    document.getElementById('range-hum').textContent ='ปกติ 50 – 65 %';
+    // ถ้ากรอกไว้แล้วให้ validate ทันที
+    if (tEl.value && hEl.value) validateInputs();
+    else document.getElementById('val-banner').classList.remove('show');
+  }
+}
+
+async function writeSystemLog(action, extra={}) {
+  const ts = Date.now();
+  await set(ref(db, "incubator/systemLogs/"+ts), { action, timestamp:ts, ...extra });
+}
+
+async function startSystem() {
+  if (!validateInputs()) { document.getElementById('val-banner').classList.add('show'); return; }
+  const tVal=parseFloat(document.getElementById('inp-temp').value);
+  const hVal=parseFloat(document.getElementById('inp-hum').value);
+  await update(ref(db,"incubator/control"), { system:"RUN", targetTemp:tVal, targetHum:hVal });
+  updateSystemUI("RUN");
+  await writeSystemLog("START", { targetTemp:tVal, targetHum:hVal });
+}
+
+async function stopSystem() {
+  if (!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ Servo จะหยุด")) return;
+  await update(ref(db,"incubator/control"), { system:"STOP" });
+  updateSystemUI("STOP");
+  await writeSystemLog("STOP");
+}
+
+// Dialog
+function openDialog()  { document.getElementById('confirm-overlay').classList.add('show'); }
+function closeDialog() { document.getElementById('confirm-overlay').classList.remove('show'); }
+async function confirmClearHourly() {
+  closeDialog();
+  await remove(ref(db,"incubator/logs"));
+  document.getElementById("logs").innerHTML="";
+  document.getElementById("log-updated").textContent="ล้างแล้ว";
+  historyChart.data.labels=[]; historyChart.data.datasets[0].data=[]; historyChart.data.datasets[1].data=[];
+  historyChart.update(); document.getElementById("chart-note").textContent="ยังไม่มีข้อมูล";
+}
+async function clearSystemLog() {
+  if (!confirm("ล้างบันทึกการเปิด/ปิดระบบทั้งหมด?")) return;
+  await remove(ref(db,"incubator/systemLogs"));
+  document.getElementById("system-logs").innerHTML="";
+  document.getElementById("syslog-updated").textContent="ล้างแล้ว";
+}
+
+document.getElementById('confirm-overlay').addEventListener('click', e => {
+  if (e.target===document.getElementById('confirm-overlay')) closeDialog();
+});
+
+window.startSystem=startSystem; window.stopSystem=stopSystem;
+window.validateInputs=validateInputs; window.openDialog=openDialog;
+window.closeDialog=closeDialog; window.confirmClearHourly=confirmClearHourly;
+window.clearSystemLog=clearSystemLog;
+
+// ===== Current Data Listener =====
+onValue(ref(db,"incubator/current"), snap => {
+  const d = snap.val(); if (!d) return;
+  lastUpdateTime = Date.now();
+  document.getElementById('online-dot').className='online-dot';
+  document.getElementById('online-text').textContent='online';
+  document.getElementById('mode-pill').textContent=d.mode??"--";
+
+  // sync systemState จาก ESP32 เฉพาะตอนโหลดหน้าครั้งแรก
+  if (d.systemState && currentState !== d.systemState && lastUpdateTime < 5000) {
+    updateSystemUI(d.systemState);
+    if (d.targetTemp) document.getElementById('inp-temp').value=d.targetTemp;
+    if (d.targetHum)  document.getElementById('inp-hum').value=d.targetHum;
+  }
+
+  setMetric("card-temp","temp",     d.temp,     35,39);
+  setMetric("card-hum", "humidity", d.humidity, 50,65);
+
+  setRelayBadge("r-fog",    d.relay?.fog);
+  setRelayBadge("r-fanMain",d.relay?.fanMain);
+  setRelayBadge("r-fan3",   d.relay?.fan3);
+  setRelayBadge("r-fan4",   d.relay?.fan4);
+  setRelayBadge("r-heater", d.relay?.heater);
+
+  document.getElementById("servoStatus").textContent  = d.servo?.status   ?? "--";
+  document.getElementById("servoPosition").textContent= d.servo?.position ?? "--";
+  document.getElementById('sensor-banner').classList.toggle('show', d.sensorFailed===true);
+});
+
+// ===== System Log Listener =====
+onValue(query(ref(db,"incubator/systemLogs"), limitToLast(30)), snap => {
+  const tbody=document.getElementById("system-logs"); tbody.innerHTML="";
+  const logs=snap.val();
+  if (!logs) { document.getElementById("syslog-updated").textContent="ยังไม่มีบันทึก"; return; }
+  document.getElementById("syslog-updated").textContent =
+    "อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  Object.entries(logs).sort((a,b)=>parseInt(b[0])-parseInt(a[0])).forEach(([id,item]) => {
+    const ms=parseInt(item.timestamp)||parseInt(id);
+    const {date,time}=fmtDate(ms);
+    const isStart=item.action==="START";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:10px;">${date}</span></td>
+      <td><span class="dot-badge ${isStart?"on":"off"}">${isStart?"START":"STOP"}</span></td>
+      <td class="td-mono">${isStart?(item.targetTemp?.toFixed(1)??"--")+" °C":"--"}</td>
+      <td class="td-mono">${isStart?(item.targetHum?.toFixed(1)??"--")+" %":"--"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+});
+
+// ===== Hourly Log + Chart Listener =====
+onValue(query(ref(db,"incubator/logs"), limitToLast(48)), snap => {
+  const tbody=document.getElementById("logs"); tbody.innerHTML="";
+  const logs=snap.val();
+  if (!logs) { document.getElementById("chart-note").textContent="ยังไม่มีข้อมูล"; return; }
+
+  const entries=Object.entries(logs).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  const cutoff=Date.now()-24*60*60*1000;
+
+  // Chart
+  const chartE=entries.filter(([id,v])=>{ const ms=parseInt(v.timestamp)||parseInt(id); return ms>1577836800000&&ms>=cutoff; });
+  historyChart.data.labels=chartE.map(([id,v])=>{ const ms=parseInt(v.timestamp)||parseInt(id); return new Date(ms).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}); });
+  historyChart.data.datasets[0].data=chartE.map(([,v])=>parseFloat(v.temp)||null);
+  historyChart.data.datasets[1].data=chartE.map(([,v])=>parseFloat(v.humidity)||null);
+  historyChart.update('none');
+  document.getElementById("chart-note").textContent=chartE.length>0
+    ? `${chartE.length} จุดข้อมูล · อัปเดต ${new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}`
+    : "ไม่มีข้อมูลใน 24 ชั่วโมงล่าสุด";
+
+  // Table
+  entries.slice(-20).reverse().forEach(([id,item]) => {
+    const ms=parseInt(item.timestamp)||parseInt(id);
+    const isReal=ms>1577836800000;
+    const {date,time}=isReal?fmtDate(ms):{date:"--",time:"--"};
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:10px;">${date}</span></td>
+      <td class="td-mono">${item.temp!=null?parseFloat(item.temp).toFixed(2):"--"}</td>
+      <td class="td-mono">${item.humidity!=null?parseFloat(item.humidity).toFixed(2):"--"}</td>
+      <td class="td-muted td-mono" style="font-size:11px;">${item.mode??"--"}</td>
+      <td><span class="dot-badge ${item.fog==="ON"?"on":"off"}">${item.fog??"--"}</span></td>
+      <td><span class="dot-badge ${item.fan3==="ON"?"on":"off"}">${item.fan3??"--"}</span></td>
+      <td><span class="dot-badge ${item.heater==="ON"?"on":"off"}">${item.heater??"--"}</span></td>
+      <td class="td-mono">${item.servoPosition!=null?item.servoPosition+"°":"--"}</td>
+      <td class="td-muted" style="font-size:11px;">${item.servoStatus??"--"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("log-updated").textContent=
+    "อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+});
+</script>
+</body>
+</html>
