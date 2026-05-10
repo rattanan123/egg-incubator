@@ -623,26 +623,19 @@ onValue(ref(db,"incubator/current"), snap => {
   document.getElementById('online-text').textContent='online';
   document.getElementById('mode-pill').textContent=d.mode??"--";
 
-  // ── โหลดครั้งแรก: restore state จาก Firebase ──
+  // คืนค่า input จาก Firebase เสมอ (เฉพาะตอน STOP หรือ first load)
   if (isFirstLoad) {
     isFirstLoad = false;
+    if (d.targetTemp) document.getElementById('inp-temp').value = d.targetTemp;
+    if (d.targetHum)  document.getElementById('inp-hum').value  = d.targetHum;
+  }
 
-    // คืนค่า input จาก Firebase
-    if (d.targetTemp) {
-      document.getElementById('inp-temp').value = d.targetTemp;
-    }
-    if (d.targetHum) {
-      document.getElementById('inp-hum').value = d.targetHum;
-    }
-
-    // คืน UI state ตาม systemState จริงใน Firebase
-    if (d.systemState === "RUN") {
-      validateInputs(); // validate ก่อนให้ปุ่มถูก state
-      updateSystemUI("RUN");
-    } else {
-      updateSystemUI("STOP");
-      validateInputs(); // เช็คว่ากรอกครบไหม
-    }
+  // sync systemState ทุกครั้งที่ Firebase เปลี่ยน
+  // ครอบคลุมกรณีที่อุปกรณ์อื่นกดปุ่มแล้วหน้านี้ต้องอัปเดตตาม
+  const newState = d.systemState ?? "STOP";
+  if (newState !== currentState) {
+    validateInputs();
+    updateSystemUI(newState);
   }
 
   setMetric("card-temp","temp",     d.temp,     35,39);
