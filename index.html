@@ -611,6 +611,8 @@ window.closeDialog=closeDialog; window.confirmClearHourly=confirmClearHourly;
 window.clearSystemLog=clearSystemLog;
 
 // ===== Current Data Listener =====
+let isFirstLoad = true;
+
 onValue(ref(db,"incubator/current"), snap => {
   const d = snap.val(); if (!d) return;
   lastUpdateTime = Date.now();
@@ -618,11 +620,26 @@ onValue(ref(db,"incubator/current"), snap => {
   document.getElementById('online-text').textContent='online';
   document.getElementById('mode-pill').textContent=d.mode??"--";
 
-  // sync systemState จาก ESP32 เฉพาะตอนโหลดหน้าครั้งแรก
-  if (d.systemState && currentState !== d.systemState && lastUpdateTime < 5000) {
-    updateSystemUI(d.systemState);
-    if (d.targetTemp) document.getElementById('inp-temp').value=d.targetTemp;
-    if (d.targetHum)  document.getElementById('inp-hum').value=d.targetHum;
+  // ── โหลดครั้งแรก: restore state จาก Firebase ──
+  if (isFirstLoad) {
+    isFirstLoad = false;
+
+    // คืนค่า input จาก Firebase
+    if (d.targetTemp) {
+      document.getElementById('inp-temp').value = d.targetTemp;
+    }
+    if (d.targetHum) {
+      document.getElementById('inp-hum').value = d.targetHum;
+    }
+
+    // คืน UI state ตาม systemState จริงใน Firebase
+    if (d.systemState === "RUN") {
+      validateInputs(); // validate ก่อนให้ปุ่มถูก state
+      updateSystemUI("RUN");
+    } else {
+      updateSystemUI("STOP");
+      validateInputs(); // เช็คว่ากรอกครบไหม
+    }
   }
 
   setMetric("card-temp","temp",     d.temp,     35,39);
