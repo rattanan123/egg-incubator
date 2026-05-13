@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>ตู้ฟักไข่</title>
+  <title>Egg Incubator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -184,7 +184,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">🥚</div>
-    <div><div class="logo-text">ตู้ฟักไข่ V.1</div></div>
+    <div><div class="logo-text">Egg Incubator</div></div>
   </div>
   <div class="header-right">
     <div class="online-pill"><div class="online-dot" id="online-dot"></div><span id="online-text">connecting…</span></div>
@@ -210,6 +210,23 @@
   <div class="banner banner-red" id="sensor-banner">
     🚨 เซ็นเซอร์อุณหภูมิขัดข้อง — ESP32 ปิด Relay ทั้งหมดเพื่อความปลอดภัย
   </div>
+
+  <!-- Metrics -->
+  <div class="metrics-row">
+    <div class="metric-card" id="card-temp">
+      <div class="metric-label">อุณหภูมิ</div>
+      <div class="metric-value" id="temp">--</div>
+      <div class="metric-unit">degree Celsius</div>
+      <div class="metric-range" id="range-temp">ตั้งค่าก่อนเริ่ม</div>
+    </div>
+    <div class="metric-card" id="card-hum">
+      <div class="metric-label">ความชื้น</div>
+      <div class="metric-value" id="humidity">--</div>
+      <div class="metric-unit">percent</div>
+      <div class="metric-range" id="range-hum">ตั้งค่าก่อนเริ่ม</div>
+    </div>
+  </div>
+
 
   <!-- System Control -->
   <div class="system-card" id="system-card">
@@ -261,25 +278,27 @@
     <div class="banner banner-amber" id="val-banner" style="margin-bottom:12px;">
       ⚠️ กรุณากรอกค่าให้ครบทั้ง 4 ช่องก่อนเริ่มระบบ
     </div>
+
+    <!-- จำนวนวันฟักไข่ -->
+    <div class="input-row" style="margin-bottom:8px;">
+      <div class="input-group">
+        <div class="input-label">จำนวนวันฟักไข่</div>
+        <div class="input-wrap">
+          <input class="input-field" type="number" id="inp-days" placeholder="18" min="1" max="60" step="1" oninput="validateInputs()">
+          <span class="input-unit">วัน</span>
+        </div>
+        <div class="input-hint" id="hint-days">เมื่อครบกำหนด ระบบแจ้งเตือน LINE</div>
+      </div>
+      <div class="input-group" style="justify-content:flex-end;">
+        <div class="input-label">เวลาที่เหลือ</div>
+        <div style="font-family:'DM Mono',monospace; font-size:22px; color:var(--green); padding:12px 0;" id="countdown-display">--</div>
+        <div style="font-size:13px; color:var(--muted);" id="countdown-end">--</div>
+      </div>
+    </div>
+
     <div class="system-btns">
       <button class="btn-start" id="btn-start" onclick="startSystem()" disabled>▶ เริ่มทำงาน</button>
       <button class="btn-stop" id="btn-stop" onclick="stopSystem()" style="display:none;">⏹ หยุดทำงาน</button>
-    </div>
-  </div>
-
-  <!-- Metrics -->
-  <div class="metrics-row">
-    <div class="metric-card" id="card-temp">
-      <div class="metric-label">อุณหภูมิ</div>
-      <div class="metric-value" id="temp">--</div>
-      <div class="metric-unit">degree Celsius</div>
-      <div class="metric-range" id="range-temp">ตั้งค่าก่อนเริ่ม</div>
-    </div>
-    <div class="metric-card" id="card-hum">
-      <div class="metric-label">ความชื้น</div>
-      <div class="metric-value" id="humidity">--</div>
-      <div class="metric-unit">percent</div>
-      <div class="metric-range" id="range-hum">ตั้งค่าก่อนเริ่ม</div>
     </div>
   </div>
 
@@ -452,6 +471,7 @@ function getInputEls() {
     tMax: document.getElementById('inp-temp-max'),
     hMin: document.getElementById('inp-hum-min'),
     hMax: document.getElementById('inp-hum-max'),
+    days: document.getElementById('inp-days'),
   };
 }
 
@@ -471,11 +491,13 @@ function validateInputs() {
   let ok2=validateField(f.tMax,'hint-temp-max',tMax,30,42,'ฮีตเตอร์ปิดเมื่อสูงกว่านี้');
   let ok3=validateField(f.hMin,'hint-hum-min',hMin,30,90,'หมอกเปิดเมื่อต่ำกว่านี้');
   let ok4=validateField(f.hMax,'hint-hum-max',hMax,30,90,'หมอกปิดเมื่อสูงกว่านี้');
+  const days=parseFloat(f.days.value);
+  let ok5=validateField(f.days,'hint-days',days,1,60,'จำนวนวันที่ต้องการฟักไข่');
   if (ok1&&ok2&&tMin>=tMax) { f.tMax.className='input-field error'; document.getElementById('hint-temp-max').className='input-hint err'; document.getElementById('hint-temp-max').textContent='ต้องมากกว่าอุณหภูมิต่ำสุด'; ok2=false; }
   if (ok3&&ok4&&hMin>=hMax) { f.hMax.className='input-field error'; document.getElementById('hint-hum-max').className='input-hint err'; document.getElementById('hint-hum-max').textContent='ต้องมากกว่าความชื้นต่ำสุด'; ok4=false; }
-  const allOk=ok1&&ok2&&ok3&&ok4;
+  const allOk=ok1&&ok2&&ok3&&ok4&&ok5;
   btn.disabled=!allOk;
-  const anyTyped=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value;
+  const anyTyped=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value||f.days.value;
   banner.classList.toggle('show',!allOk&&!!anyTyped);
   return allOk;
 }
@@ -491,14 +513,14 @@ function updateSystemUI(state) {
     const tMin=f.tMin.value, tMax=f.tMax.value, hMin=f.hMin.value, hMax=f.hMax.value;
     sub.textContent=(tMin&&tMax&&hMin&&hMax)?`T: ${parseFloat(tMin).toFixed(1)}–${parseFloat(tMax).toFixed(1)}°C  H: ${parseFloat(hMin).toFixed(0)}–${parseFloat(hMax).toFixed(0)}%`:'state: RUN';
     btnS.style.display='none'; btnE.style.display='';
-    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=true;
+    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=f.days.disabled=true;
     if (tMin&&tMax) document.getElementById('range-temp').textContent=`${parseFloat(tMin).toFixed(1)} – ${parseFloat(tMax).toFixed(1)} °C`;
     if (hMin&&hMax) document.getElementById('range-hum').textContent=`${parseFloat(hMin).toFixed(0)} – ${parseFloat(hMax).toFixed(0)} %`;
   } else {
     dot.className='system-dot stop'; label.textContent='ระบบหยุด'; card.className='system-card stopped';
     sub.textContent='กรอกค่าเพื่อเริ่มทำงานใหม่';
     btnS.style.display=''; btnE.style.display='none'; btnS.disabled=true;
-    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=false;
+    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=f.days.disabled=false;
     document.getElementById('range-temp').textContent='ตั้งค่าก่อนเริ่ม';
     document.getElementById('range-hum').textContent='ตั้งค่าก่อนเริ่ม';
     if (f.tMin.value&&f.tMax.value&&f.hMin.value&&f.hMax.value) validateInputs();
@@ -516,9 +538,15 @@ async function startSystem() {
   const f=getInputEls();
   const tMin=parseFloat(f.tMin.value), tMax=parseFloat(f.tMax.value);
   const hMin=parseFloat(f.hMin.value), hMax=parseFloat(f.hMax.value);
-  await update(ref(db,"incubator/control"), { system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax });
+  const days=parseFloat(f.days.value);
+  const startTime = Date.now();
+  const endTime   = startTime + days * 24 * 60 * 60 * 1000;
+  await update(ref(db,"incubator/control"), {
+    system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax,
+    durationDays:days, startTime:startTime, endTime:endTime
+  });
   updateSystemUI("RUN");
-  await writeSystemLog("START", { tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax });
+  await writeSystemLog("START", { tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax, durationDays:days });
 }
 
 async function stopSystem() {
@@ -554,7 +582,51 @@ window.validateInputs=validateInputs; window.openDialog=openDialog;
 window.closeDialog=closeDialog; window.confirmClearHourly=confirmClearHourly;
 window.clearSystemLog=clearSystemLog;
 
-// ── Firebase Listeners ──
+// ── Countdown Timer ──
+let endTimeMs = 0;
+let countdownInterval = null;
+
+function startCountdown(endTime) {
+  endTimeMs = endTime;
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(updateCountdown, 1000);
+  updateCountdown();
+}
+
+function updateCountdown() {
+  const now  = Date.now();
+  const diff = endTimeMs - now;
+  const cdEl  = document.getElementById('countdown-display');
+  const endEl = document.getElementById('countdown-end');
+
+  if (diff <= 0) {
+    cdEl.textContent = 'หมดเวลา';
+    cdEl.style.color = 'var(--red)';
+    clearInterval(countdownInterval);
+    return;
+  }
+
+  const days    = Math.floor(diff / (1000*60*60*24));
+  const hours   = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((diff % (1000*60)) / 1000);
+
+  cdEl.textContent = `${days}วัน ${hours}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  cdEl.style.color = days < 1 ? 'var(--amber)' : 'var(--green)';
+
+  // แสดงวันสิ้นสุด
+  const endDate = new Date(endTimeMs);
+  endEl.textContent = 'ครบ ' + endDate.toLocaleDateString('th-TH', {day:'2-digit',month:'2-digit',year:'2-digit'})
+    + ' ' + endDate.toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'});
+}
+
+function stopCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  document.getElementById('countdown-display').textContent = '--';
+  document.getElementById('countdown-display').style.color = 'var(--green)';
+  document.getElementById('countdown-end').textContent = '--';
+  endTimeMs = 0;
+}
 let isFirstLoad = true;
 
 // Current data
@@ -571,6 +643,7 @@ onValue(ref(db,"incubator/current"), snap => {
     if (d.tempMax) document.getElementById('inp-temp-max').value = d.tempMax;
     if (d.humMin)  document.getElementById('inp-hum-min').value  = d.humMin;
     if (d.humMax)  document.getElementById('inp-hum-max').value  = d.humMax;
+    if (d.durationDays) document.getElementById('inp-days').value = d.durationDays;
   }
 
   // Sync system state ทุกครั้งที่ Firebase เปลี่ยน
@@ -578,6 +651,13 @@ onValue(ref(db,"incubator/current"), snap => {
   if (newState !== currentState) {
     validateInputs();
     updateSystemUI(newState);
+  }
+
+  // อัปเดต countdown จาก endTime ใน Firebase
+  if (d.endTime && newState === "RUN") {
+    if (d.endTime !== endTimeMs) startCountdown(d.endTime);
+  } else if (newState === "STOP") {
+    stopCountdown();
   }
 
   setMetric("card-temp", "temp",     d.temp);
