@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Egg Incubator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,263 +12,172 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #0e0f11; --surface:  #161719; --surface2: #1e2023;
-      --border:   rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
-      --text:     #f0f0ef; --muted:    #6b6e74; --accent:   #e8e0c8;
-      --green:    #4ade80; --green-bg: rgba(74,222,128,0.08);
-      --red:      #f87171; --red-bg:   rgba(248,113,113,0.08);
-      --blue:     #60a5fa; --amber:    #fbbf24;
-      --radius:   14px;    --radius-sm: 8px;
+      --bg: #0e0f11; --surface: #161719; --surface2: #1e2023;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text: #f0f0ef; --muted: #6b6e74; --accent: #e8e0c8;
+      --green: #4ade80; --green-bg: rgba(74,222,128,0.08);
+      --red: #f87171; --red-bg: rgba(248,113,113,0.08);
+      --blue: #60a5fa; --amber: #fbbf24;
+      --radius: 14px; --radius-sm: 8px;
     }
+    html { font-size: 20px; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:16px 14px 48px; -webkit-text-size-adjust:100%; }
 
-    html { font-size: 16px; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg); color: var(--text);
-      min-height: 100vh;
-      padding: 16px 14px 48px;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    /* ── Header ── */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      max-width: 960px; margin: 0 auto 20px;
-      padding-bottom: 16px; border-bottom: 1px solid var(--border);
-      gap: 10px;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; }
-    .logo-icon {
-      width: 36px; height: 36px; border-radius: 9px;
-      background: var(--surface2); border: 1px solid var(--border2);
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-      flex-shrink: 0;
-    }
-    .logo-text { font-size: 16px; font-weight: 500; }
-    .logo-sub  { font-size: 12px; color: var(--muted); }
-    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .online-pill {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 13px; color: var(--muted);
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 99px; padding: 5px 12px;
-    }
-    .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
-    .online-dot.warn  { background: var(--amber); }
-    .online-dot.error { background: var(--red); }
+    header { display:flex; align-items:center; justify-content:space-between; max-width:960px; margin:0 auto 20px; padding-bottom:16px; border-bottom:1px solid var(--border); gap:10px; }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon { width:40px; height:40px; border-radius:9px; background:var(--surface2); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .logo-text { font-size:22px; font-weight:500; }
+    .header-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .online-pill { display:flex; align-items:center; gap:6px; font-size:16px; color:var(--muted); background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:6px 14px; }
+    .online-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s ease-in-out infinite; }
+    .online-dot.warn { background:var(--amber); }
+    .online-dot.error { background:var(--red); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .mode-pill {
-      font-family: 'DM Mono', monospace; font-size: 12px;
-      padding: 5px 12px; border-radius: 99px;
-      border: 1px solid var(--border2); background: var(--surface2); color: var(--accent);
-    }
+    .mode-pill { font-family:'DM Mono',monospace; font-size:14px; padding:6px 14px; border-radius:99px; border:1px solid var(--border2); background:var(--surface2); color:var(--accent); }
 
-    /* ── Layout ── */
-    .wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .wrap { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
 
-    /* ── Banner ── */
-    .banner { display: none; border-radius: var(--radius); padding: 14px 18px; font-size: 14px; line-height: 1.5; }
-    .banner.show { display: block; }
-    .banner-red   { background: var(--red-bg);          border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
-    .banner-amber { background: rgba(251,191,36,0.08);   border: 1px solid rgba(251,191,36,0.3);  color: var(--amber); }
+    /* Banner */
+    .banner { display:none; border-radius:var(--radius); padding:14px 18px; font-size:18px; line-height:1.5; }
+    .banner.show { display:block; }
+    .banner-red { background:var(--red-bg); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+    .banner-amber { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); color:var(--amber); }
 
-    /* ── System Card ── */
-    .system-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
-    .system-card.running { border-color: rgba(74,222,128,0.3); }
-    .system-card.stopped { border-color: rgba(248,113,113,0.25); }
-    .system-top { display: flex; align-items: center; margin-bottom: 18px; gap: 10px; }
-    .system-status { display: flex; align-items: center; gap: 10px; }
-    .system-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .system-dot.run  { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s ease-in-out infinite; }
-    .system-dot.stop { background: var(--red); }
-    .system-label { font-size: 15px; font-weight: 500; }
-    .system-sub   { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+    /* System Card */
+    .system-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px; }
+    .system-card.running { border-color:rgba(74,222,128,0.3); }
+    .system-card.stopped { border-color:rgba(248,113,113,0.25); }
+    .system-top { display:flex; align-items:center; margin-bottom:18px; }
+    .system-status { display:flex; align-items:center; gap:10px; }
+    .system-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .system-dot.run { background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s ease-in-out infinite; }
+    .system-dot.stop { background:var(--red); }
+    .system-label { font-size:20px; font-weight:500; }
+    .system-sub { font-size:16px; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
 
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-    .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-label { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; font-weight: 500; }
-    .input-wrap  { position: relative; }
-    .input-field {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: var(--radius-sm); padding: 13px 44px 13px 14px;
-      font-family: 'DM Mono', monospace; font-size: 18px; color: var(--text);
-      outline: none; transition: border-color 0.15s;
-      -webkit-appearance: none; appearance: none;
-    }
-    .input-field:focus { border-color: rgba(255,255,255,0.3); }
-    .input-field.error { border-color: rgba(248,113,113,0.6); background: rgba(248,113,113,0.05); }
-    .input-field.valid { border-color: rgba(74,222,128,0.4); }
-    .input-field:disabled { opacity: 0.4; cursor: not-allowed; }
-    .input-unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; pointer-events: none; }
-    .input-hint { font-size: 12px; color: var(--muted); line-height: 1.4; }
-    .input-hint.err { color: var(--red); }
+    .input-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    .input-group { display:flex; flex-direction:column; gap:6px; }
+    .input-label { font-size:16px; letter-spacing:0.05em; color:var(--muted); text-transform:uppercase; font-weight:500; }
+    .input-wrap { position:relative; }
+    .input-field { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius-sm); padding:13px 44px 13px 14px; font-family:'DM Mono',monospace; font-size:26px; color:var(--text); outline:none; transition:border-color 0.15s; -webkit-appearance:none; appearance:none; }
+    .input-field:focus { border-color:rgba(255,255,255,0.3); }
+    .input-field.error { border-color:rgba(248,113,113,0.6); background:rgba(248,113,113,0.05); }
+    .input-field.valid { border-color:rgba(74,222,128,0.4); }
+    .input-field:disabled { opacity:0.4; cursor:not-allowed; }
+    .input-unit { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:17px; color:var(--muted); font-family:'DM Mono',monospace; pointer-events:none; }
+    .input-hint { font-size:14px; color:var(--muted); line-height:1.4; }
+    .input-hint.err { color:var(--red); }
 
-    .system-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
-    .btn-start {
-      font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
-      padding: 12px 28px; border-radius: 99px; cursor: pointer; transition: all 0.2s;
-      background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.4);
-      min-width: 130px; text-align: center;
-    }
-    .btn-start:hover:not(:disabled) { background: rgba(74,222,128,0.22); }
-    .btn-start:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-stop {
-      font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500;
-      padding: 12px 28px; border-radius: 99px; cursor: pointer; transition: all 0.2s;
-      background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.4);
-      min-width: 130px; text-align: center;
-    }
-    .btn-stop:hover { background: rgba(248,113,113,0.22); }
+    .system-btns { display:flex; gap:10px; justify-content:flex-end; margin-top:8px; }
+    .btn-start { font-family:'DM Mono',monospace; font-size:20px; font-weight:500; padding:14px 28px; border-radius:99px; cursor:pointer; transition:all 0.2s; background:rgba(74,222,128,0.1); color:var(--green); border:1px solid rgba(74,222,128,0.4); min-width:140px; text-align:center; }
+    .btn-start:hover:not(:disabled) { background:rgba(74,222,128,0.22); }
+    .btn-start:disabled { opacity:0.35; cursor:not-allowed; }
+    .btn-stop { font-family:'DM Mono',monospace; font-size:20px; font-weight:500; padding:14px 28px; border-radius:99px; cursor:pointer; transition:all 0.2s; background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.4); min-width:140px; text-align:center; }
+    .btn-stop:hover { background:rgba(248,113,113,0.22); }
 
-    /* ── Metrics ── */
-    .metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .metric-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px 18px 16px;
-      position: relative; overflow: hidden;
-    }
+    /* Metrics */
+    .metrics-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .metric-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 18px 36px; position:relative; overflow:hidden; }
     .metric-card::before { content:''; position:absolute; inset:0; border-radius:var(--radius); pointer-events:none; }
-    .metric-card.warn::before { box-shadow: inset 0 0 0 1.5px rgba(248,113,113,0.35); }
-    .metric-card.ok::before   { box-shadow: inset 0 0 0 1.5px rgba(74,222,128,0.25); }
-    .metric-label { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; font-weight: 500; }
-    .metric-value { font-family: 'DM Mono', monospace; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -0.03em; }
-    .metric-value.ok   { color: var(--green); }
-    .metric-value.warn { color: var(--red); }
-    .metric-unit  { font-size: 14px; color: var(--muted); margin-top: 8px; }
-    .metric-range { position: absolute; bottom: 14px; right: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; line-height: 1.6; }
+    .metric-card.warn::before { box-shadow:inset 0 0 0 1.5px rgba(248,113,113,0.35); }
+    .metric-card.ok::before { box-shadow:inset 0 0 0 1.5px rgba(74,222,128,0.25); }
+    .metric-label { font-size:16px; letter-spacing:0.08em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; font-weight:500; }
+    .metric-value { font-family:'DM Mono',monospace; font-size:80px; font-weight:400; line-height:1; letter-spacing:-0.03em; }
+    .metric-value.ok { color:var(--green); }
+    .metric-value.warn { color:var(--red); }
+    .metric-unit { font-size:18px; color:var(--muted); margin-top:8px; }
+    .metric-range { position:absolute; bottom:14px; right:14px; font-family:'DM Mono',monospace; font-size:13px; color:var(--muted); text-align:right; line-height:1.6; }
 
-    /* ── Bottom Grid ── */
-    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
-    .card-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; font-weight: 500; }
-    .relay-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
-    .relay-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 10px; border-radius: var(--radius-sm); }
-    .relay-row:hover { background: var(--surface2); }
-    .relay-name { font-size: 14px; }
-    .badge { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 99px; }
-    .badge.on  { background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
-    .badge.off { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
-    .servo-vals { display: flex; flex-direction: column; gap: 14px; }
-    .servo-row { display: flex; justify-content: space-between; align-items: center; }
-    .servo-key { font-size: 14px; color: var(--muted); }
-    .servo-val { font-family: 'DM Mono', monospace; font-size: 16px; }
+    /* Bottom Grid */
+    .bottom-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px; }
+    .card-title { font-size:16px; letter-spacing:0.08em; color:var(--muted); text-transform:uppercase; margin-bottom:16px; font-weight:500; }
+    .relay-list { list-style:none; display:flex; flex-direction:column; gap:2px; }
+    .relay-row { display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:var(--radius-sm); }
+    .relay-row:hover { background:var(--surface2); }
+    .relay-name { font-size:20px; }
+    .badge { font-family:'DM Mono',monospace; font-size:16px; font-weight:500; padding:5px 13px; border-radius:99px; }
+    .badge.on { background:var(--green-bg); color:var(--green); border:1px solid rgba(74,222,128,0.2); }
+    .badge.off { background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+    .servo-vals { display:flex; flex-direction:column; gap:14px; }
+    .servo-row { display:flex; justify-content:space-between; align-items:center; }
+    .servo-key { font-size:20px; color:var(--muted); }
+    .servo-val { font-family:'DM Mono',monospace; font-size:22px; }
 
-    /* ── Chart ── */
-    .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; }
-    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-    .chart-legend { display: flex; gap: 16px; }
-    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
-    .legend-dot  { width: 9px; height: 9px; border-radius: 50%; }
+    /* Chart */
+    .chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px; }
+    .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+    .chart-legend { display:flex; gap:16px; }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:16px; color:var(--muted); font-family:'DM Mono',monospace; }
+    .legend-dot { width:9px; height:9px; border-radius:50%; }
 
-    /* ── Log ── */
-    .log-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; overflow-x: auto; }
-    .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
-    .log-header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .btn-clear {
-      font-family: 'DM Mono', monospace; font-size: 12px; padding: 6px 16px;
-      border-radius: 99px; border: 1px solid rgba(248,113,113,0.35);
-      background: rgba(248,113,113,0.07); color: var(--red); cursor: pointer; transition: all 0.15s;
-      white-space: nowrap; flex-shrink: 0;
-    }
-    .btn-clear:hover { background: rgba(248,113,113,0.15); }
-    table { width: 100%; border-collapse: collapse; min-width: 460px; }
-    thead th {
-      font-size: 11px; letter-spacing: 0.07em; color: var(--muted); text-transform: uppercase;
-      text-align: left; padding: 0 10px 12px; border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    tbody tr:hover { background: var(--surface2); }
-    tbody td { font-size: 13px; padding: 11px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tbody tr:last-child td { border-bottom: none; }
-    .td-mono  { font-family: 'DM Mono', monospace; }
-    .td-muted { color: var(--muted); }
-    .dot-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 99px;
-    }
-    .dot-badge.on  { background: var(--green-bg); color: var(--green); }
-    .dot-badge.off { background: var(--surface2); color: var(--muted); }
-    .dot-badge::before { content:''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    /* Log */
+    .log-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px; overflow-x:auto; }
+    .log-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:8px; flex-wrap:wrap; }
+    .log-header-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; flex:1; min-width:0; }
+    .btn-clear { font-family:'DM Mono',monospace; font-size:16px; padding:7px 18px; border-radius:99px; border:1px solid rgba(248,113,113,0.35); background:rgba(248,113,113,0.07); color:var(--red); cursor:pointer; transition:all 0.15s; white-space:nowrap; flex-shrink:0; }
+    .btn-clear:hover { background:rgba(248,113,113,0.15); }
+    table { width:100%; border-collapse:collapse; min-width:460px; }
+    thead th { font-size:14px; letter-spacing:0.06em; color:var(--muted); text-transform:uppercase; text-align:left; padding:0 10px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    tbody tr:hover { background:var(--surface2); }
+    tbody td { font-size:17px; padding:12px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    .td-mono { font-family:'DM Mono',monospace; }
+    .td-muted { color:var(--muted); }
+    .dot-badge { display:inline-flex; align-items:center; gap:5px; font-family:'DM Mono',monospace; font-size:15px; padding:4px 11px; border-radius:99px; }
+    .dot-badge.on { background:var(--green-bg); color:var(--green); }
+    .dot-badge.off { background:var(--surface2); color:var(--muted); }
+    .dot-badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
 
-    /* ── Dialog ── */
-    .dialog-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:100; align-items:center; justify-content:center; padding: 16px; }
-    .dialog-overlay.show { display: flex; }
-    .dialog-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 18px; padding: 28px 24px 24px; max-width: 360px; width: 100%; }
-    .dialog-icon  { font-size: 32px; margin-bottom: 14px; }
-    .dialog-title { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
-    .dialog-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
-    .dialog-btns  { display: flex; gap: 10px; justify-content: flex-end; }
-    .dialog-cancel {
-      font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 20px;
-      border-radius: 99px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted); cursor: pointer;
-    }
-    .dialog-confirm {
-      font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 20px;
-      border-radius: 99px; border: 1px solid rgba(248,113,113,0.5); background: rgba(248,113,113,0.12); color: var(--red); cursor: pointer;
-    }
-    .dialog-confirm:hover { background: rgba(248,113,113,0.25); }
+    /* Dialog */
+    .dialog-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:100; align-items:center; justify-content:center; padding:16px; }
+    .dialog-overlay.show { display:flex; }
+    .dialog-box { background:var(--surface); border:1px solid var(--border2); border-radius:18px; padding:28px 24px 24px; max-width:360px; width:100%; }
+    .dialog-icon { font-size:36px; margin-bottom:14px; }
+    .dialog-title { font-size:22px; font-weight:500; margin-bottom:8px; }
+    .dialog-desc { font-size:18px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
+    .dialog-btns { display:flex; gap:10px; justify-content:flex-end; }
+    .dialog-cancel { font-family:'DM Mono',monospace; font-size:16px; padding:10px 20px; border-radius:99px; border:1px solid var(--border2); background:var(--surface2); color:var(--muted); cursor:pointer; }
+    .dialog-confirm { font-family:'DM Mono',monospace; font-size:16px; padding:10px 20px; border-radius:99px; border:1px solid rgba(248,113,113,0.5); background:rgba(248,113,113,0.12); color:var(--red); cursor:pointer; }
+    .dialog-confirm:hover { background:rgba(248,113,113,0.25); }
 
-    /* ── Responsive: Tablet (≤768px) ── */
+    /* Responsive Tablet */
     @media (max-width: 768px) {
-      body { padding: 14px 12px 48px; }
-      .metric-value { font-size: 52px; }
-      .relay-name { font-size: 14px; }
+      .metric-value { font-size:65px; }
     }
 
-    /* ── Responsive: Mobile (≤480px) ── */
+    /* Responsive Mobile */
     @media (max-width: 480px) {
-      body { padding: 12px 10px 48px; }
-      .wrap { gap: 12px; }
-
-      /* Header */
-      header { margin-bottom: 16px; }
-      .logo-text { font-size: 15px; }
-      .mode-pill { display: none; } /* ซ่อน mode pill บนมือถือเล็กมาก */
-
-      /* System card */
-      .system-card { padding: 16px 14px; }
-      .system-label { font-size: 15px; }
-      .input-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-      .input-field { font-size: 20px; padding: 14px 44px 14px 14px; }
-      .input-label { font-size: 11px; }
-      .btn-start, .btn-stop { font-size: 15px; padding: 13px 0; width: 100%; min-width: unset; }
-      .system-btns { flex-direction: column; }
-
-      /* Metrics — ชิดกันได้ในมือถือ */
-      .metrics-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-      .metric-card { padding: 16px 14px 32px; }
-      .metric-value { font-size: 44px; }
-      .metric-label { font-size: 11px; }
-      .metric-unit  { font-size: 12px; }
-      .metric-range { font-size: 9px; bottom: 10px; right: 10px; }
-
-      /* Bottom grid — stack บนมือถือ */
-      .bottom-grid { grid-template-columns: 1fr; }
-      .relay-name { font-size: 15px; }
-      .relay-row  { padding: 11px 10px; }
-      .badge { font-size: 12px; padding: 5px 12px; }
-      .servo-key { font-size: 14px; }
-      .servo-val { font-size: 17px; }
-
-      /* Log table — scroll แนวนอน */
-      .log-wrap { padding: 16px 14px; }
-      thead th { font-size: 10px; padding: 0 8px 10px; }
-      tbody td { font-size: 12px; padding: 10px 8px; }
-
-      /* Chart */
-      .chart-wrap { padding: 16px 14px; }
-      .legend-item { font-size: 11px; }
-
-      /* Card */
-      .card { padding: 16px 14px; }
-      .card-title { font-size: 11px; }
+      body { padding:12px 10px 48px; }
+      .wrap { gap:12px; }
+      .logo-text { font-size:20px; }
+      .mode-pill { display:none; }
+      .system-label { font-size:20px; }
+      .input-field { font-size:24px; }
+      .input-label { font-size:14px; }
+      .btn-start, .btn-stop { font-size:19px; padding:13px 0; width:100%; min-width:unset; }
+      .system-btns { flex-direction:column; }
+      .metrics-row { gap:10px; }
+      .metric-card { padding:16px 14px 36px; }
+      .metric-value { font-size:56px; }
+      .metric-label { font-size:14px; }
+      .metric-unit { font-size:15px; }
+      .metric-range { font-size:11px; bottom:10px; right:10px; }
+      .bottom-grid { grid-template-columns:1fr; }
+      .relay-name { font-size:20px; }
+      .badge { font-size:16px; padding:5px 12px; }
+      .log-wrap { padding:16px 14px; }
+      thead th { font-size:12px; padding:0 8px 10px; }
+      tbody td { font-size:15px; padding:10px 8px; }
+      .card-title { font-size:14px; }
+      .log-header { flex-direction:row; align-items:center; }
+      .btn-clear { margin-left:0; }
     }
 
-    /* ── Responsive: Very small (≤360px) ── */
+    /* Very Small */
     @media (max-width: 360px) {
-      .metric-value { font-size: 38px; }
-      .input-field  { font-size: 18px; }
-      .logo-sub     { display: none; }
+      .metric-value { font-size:48px; }
+      .input-field { font-size:20px; }
     }
   </style>
 </head>
@@ -279,7 +186,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">🥚</div>
-    <div><div class="logo-text">Egg Incubator</div><div class="logo-sub">ESP32 · Firebase</div></div>
+    <div><div class="logo-text">Egg Incubator</div></div>
   </div>
   <div class="header-right">
     <div class="online-pill"><div class="online-dot" id="online-dot"></div><span id="online-text">connecting…</span></div>
@@ -287,7 +194,7 @@
   </div>
 </header>
 
-<!-- Dialog ล้าง log รายชั่วโมง -->
+<!-- Dialog -->
 <div class="dialog-overlay" id="confirm-overlay">
   <div class="dialog-box">
     <div class="dialog-icon">🗑️</div>
@@ -304,44 +211,62 @@
 
   <!-- Banner เซ็นเซอร์พัง -->
   <div class="banner banner-red" id="sensor-banner">
-    🚨 เซ็นเซอร์อุณหภูมิขัดข้อง — ESP32 ปิด Relay ทั้งหมดเพื่อความปลอดภัย กรุณาตรวจสอบสายเซ็นเซอร์
+    🚨 เซ็นเซอร์อุณหภูมิขัดข้อง — ESP32 ปิด Relay ทั้งหมดเพื่อความปลอดภัย
   </div>
 
-  <!-- System Control Card -->
+  <!-- System Control -->
   <div class="system-card" id="system-card">
     <div class="system-top">
       <div class="system-status">
         <div class="system-dot stop" id="system-dot"></div>
         <div>
           <div class="system-label" id="system-label">ระบบพร้อมทำงาน</div>
-          <div class="system-sub"   id="system-sub">กรอกค่าอุณหภูมิและความชื้นเพื่อเริ่ม</div>
+          <div class="system-sub" id="system-sub">กรอกค่าอุณหภูมิและความชื้นเพื่อเริ่ม</div>
         </div>
       </div>
     </div>
     <div class="input-row">
       <div class="input-group">
-        <div class="input-label">อุณหภูมิเป้าหมาย</div>
+        <div class="input-label">อุณหภูมิต่ำสุด (เปิดฮีตเตอร์)</div>
         <div class="input-wrap">
-          <input class="input-field" type="number" id="inp-temp" placeholder="37.5" min="30" max="42" step="0.1" oninput="validateInputs()">
+          <input class="input-field" type="number" id="inp-temp-min" placeholder="36.5" min="30" max="42" step="0.1" oninput="validateInputs()">
           <span class="input-unit">°C</span>
         </div>
-        <div class="input-hint" id="hint-temp">ช่วงปกติ 35 – 39 °C</div>
+        <div class="input-hint" id="hint-temp-min">ฮีตเตอร์เปิดเมื่อต่ำกว่านี้</div>
       </div>
       <div class="input-group">
-        <div class="input-label">ความชื้นเป้าหมาย</div>
+        <div class="input-label">อุณหภูมิสูงสุด (ปิดฮีตเตอร์)</div>
         <div class="input-wrap">
-          <input class="input-field" type="number" id="inp-hum" placeholder="55" min="30" max="90" step="1" oninput="validateInputs()">
+          <input class="input-field" type="number" id="inp-temp-max" placeholder="38.5" min="30" max="42" step="0.1" oninput="validateInputs()">
+          <span class="input-unit">°C</span>
+        </div>
+        <div class="input-hint" id="hint-temp-max">ฮีตเตอร์ปิด + พัดลมเสริมเปิดเมื่อสูงกว่านี้</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <div class="input-label">ความชื้นต่ำสุด (เปิดหมอก)</div>
+        <div class="input-wrap">
+          <input class="input-field" type="number" id="inp-hum-min" placeholder="53" min="30" max="90" step="1" oninput="validateInputs()">
           <span class="input-unit">%</span>
         </div>
-        <div class="input-hint" id="hint-hum">ช่วงปกติ 50 – 65 %</div>
+        <div class="input-hint" id="hint-hum-min">หมอกเปิดเมื่อต่ำกว่านี้</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">ความชื้นสูงสุด (ปิดหมอก)</div>
+        <div class="input-wrap">
+          <input class="input-field" type="number" id="inp-hum-max" placeholder="60" min="30" max="90" step="1" oninput="validateInputs()">
+          <span class="input-unit">%</span>
+        </div>
+        <div class="input-hint" id="hint-hum-max">หมอกปิดเมื่อสูงกว่านี้</div>
       </div>
     </div>
     <div class="banner banner-amber" id="val-banner" style="margin-bottom:12px;">
-      ⚠️ กรุณากรอกค่าอุณหภูมิและความชื้นให้ครบก่อนเริ่มระบบ
+      ⚠️ กรุณากรอกค่าให้ครบทั้ง 4 ช่องก่อนเริ่มระบบ
     </div>
     <div class="system-btns">
       <button class="btn-start" id="btn-start" onclick="startSystem()" disabled>▶ เริ่มทำงาน</button>
-      <button class="btn-stop"  id="btn-stop"  onclick="stopSystem()"  style="display:none;">⏹ หยุดทำงาน</button>
+      <button class="btn-stop" id="btn-stop" onclick="stopSystem()" style="display:none;">⏹ หยุดทำงาน</button>
     </div>
   </div>
 
@@ -351,13 +276,13 @@
       <div class="metric-label">อุณหภูมิ</div>
       <div class="metric-value" id="temp">--</div>
       <div class="metric-unit">degree Celsius</div>
-      <div class="metric-range" id="range-temp">ปกติ 35 – 39 °C</div>
+      <div class="metric-range" id="range-temp">ตั้งค่าก่อนเริ่ม</div>
     </div>
     <div class="metric-card" id="card-hum">
-      <div class="metric-label">ความชื้นสัมพัทธ์</div>
+      <div class="metric-label">ความชื้น</div>
       <div class="metric-value" id="humidity">--</div>
       <div class="metric-unit">percent</div>
-      <div class="metric-range" id="range-hum">ปกติ 50 – 65 %</div>
+      <div class="metric-range" id="range-hum">ตั้งค่าก่อนเริ่ม</div>
     </div>
   </div>
 
@@ -366,11 +291,11 @@
     <div class="card">
       <div class="card-title">สถานะ Relay</div>
       <ul class="relay-list">
-        <li class="relay-row"><span class="relay-name">หมอก</span>      <span class="badge off" id="r-fog">OFF</span></li>
-        <li class="relay-row"><span class="relay-name">พัดลมหลัก</span> <span class="badge off" id="r-fanMain">OFF</span></li>
-        <li class="relay-row"><span class="relay-name">พัดลม 3</span>   <span class="badge off" id="r-fan3">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">หมอก</span><span class="badge off" id="r-fog">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">พัดลมหลัก</span><span class="badge off" id="r-fanMain">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">พัดลม 3</span><span class="badge off" id="r-fan3">OFF</span></li>
         <li class="relay-row"><span class="relay-name">พัดลมเสริม</span><span class="badge off" id="r-fan4">OFF</span></li>
-        <li class="relay-row"><span class="relay-name">ฮีตเตอร์</span>  <span class="badge off" id="r-heater">OFF</span></li>
+        <li class="relay-row"><span class="relay-name">ฮีตเตอร์</span><span class="badge off" id="r-heater">OFF</span></li>
       </ul>
     </div>
     <div class="card">
@@ -392,7 +317,7 @@
       </div>
     </div>
     <canvas id="historyChart" height="110"></canvas>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;" id="chart-note">กำลังโหลด...</div>
+    <div style="font-size:14px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;" id="chart-note">กำลังโหลด...</div>
   </div>
 
   <!-- System Log -->
@@ -400,16 +325,18 @@
     <div class="log-header">
       <div class="log-header-left">
         <div class="card-title" style="margin:0;">บันทึกการเปิด/ปิดระบบ</div>
-        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;" id="syslog-updated">--</div>
+        <div style="font-size:14px;color:var(--muted);font-family:'DM Mono',monospace;" id="syslog-updated">--</div>
       </div>
       <button class="btn-clear" onclick="clearSystemLog()">ล้าง</button>
     </div>
     <table>
       <thead><tr>
-        <th style="width:150px;">วันที่ / เวลา</th>
-        <th style="width:90px;">การกระทำ</th>
-        <th style="width:110px;">เป้าหมาย °C</th>
-        <th>เป้าหมาย %</th>
+        <th style="width:90px;">วันที่/เวลา</th>
+        <th style="width:80px;">การกระทำ</th>
+        <th style="width:75px;">T min°C</th>
+        <th style="width:75px;">T max°C</th>
+        <th style="width:65px;">H min%</th>
+        <th>H max%</th>
       </tr></thead>
       <tbody id="system-logs"></tbody>
     </table>
@@ -420,17 +347,21 @@
     <div class="log-header">
       <div class="log-header-left">
         <div class="card-title" style="margin:0;">บันทึกรายชั่วโมง</div>
-        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;" id="log-updated">--</div>
+        <div style="font-size:14px;color:var(--muted);font-family:'DM Mono',monospace;" id="log-updated">--</div>
       </div>
       <button class="btn-clear" onclick="openDialog()">ล้าง Log</button>
     </div>
     <table>
       <thead><tr>
-        <th style="width:130px;">วันที่ / เวลา</th>
-        <th style="width:55px;">°C</th><th style="width:50px;">%RH</th>
-        <th style="width:65px;">Mode</th><th style="width:65px;">หมอก</th>
-        <th style="width:65px;">พัดลม 3</th><th style="width:70px;">ฮีตเตอร์</th>
-        <th style="width:70px;">Servo°</th><th>สถานะ Servo</th>
+        <th style="width:90px;">วันที่/เวลา</th>
+        <th style="width:46px;">°C</th>
+        <th style="width:46px;">%RH</th>
+        <th style="width:48px;">Mode</th>
+        <th style="width:52px;">หมอก</th>
+        <th style="width:56px;">พัดลม3</th>
+        <th style="width:58px;">ฮีตเตอร์</th>
+        <th style="width:52px;">Servo°</th>
+        <th>สถานะServo</th>
       </tr></thead>
       <tbody id="logs"></tbody>
     </table>
@@ -456,26 +387,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-// ===== Chart =====
-const historyChart = new Chart(
-  document.getElementById('historyChart').getContext('2d'), {
+// ── Chart ──
+const historyChart = new Chart(document.getElementById('historyChart').getContext('2d'), {
   type: 'line',
   data: { labels: [], datasets: [
-    { label:'อุณหภูมิ (°C)', data:[], borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#4ade80', tension:0.3, fill:true, yAxisID:'yTemp' },
-    { label:'ความชื้น (%)',  data:[], borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.06)',  borderWidth:2, pointRadius:3, pointBackgroundColor:'#60a5fa', tension:0.3, fill:true, yAxisID:'yHum'  }
+    { label:'อุณหภูมิ', data:[], borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#4ade80', tension:0.3, fill:true, yAxisID:'yTemp' },
+    { label:'ความชื้น',  data:[], borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#60a5fa', tension:0.3, fill:true, yAxisID:'yHum' }
   ]},
   options: {
     responsive:true, interaction:{ mode:'index', intersect:false },
-    plugins: { legend:{display:false}, tooltip:{ backgroundColor:'#1e2023', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, titleColor:'#6b6e74', bodyColor:'#f0f0ef', padding:10, titleFont:{family:"'DM Mono',monospace",size:11}, bodyFont:{family:"'DM Mono',monospace",size:12} } },
+    plugins: { legend:{display:false}, tooltip:{ backgroundColor:'#1e2023', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, titleColor:'#6b6e74', bodyColor:'#f0f0ef', padding:10 } },
     scales: {
-      x: { ticks:{color:'#6b6e74',font:{family:"'DM Mono',monospace",size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8}, grid:{color:'rgba(255,255,255,0.04)'} },
-      yTemp: { position:'left',  min:30, max:45, ticks:{color:'#4ade80',font:{family:"'DM Mono',monospace",size:10},callback:v=>v+'°'}, grid:{color:'rgba(255,255,255,0.04)'} },
-      yHum:  { position:'right', min:40, max:80, ticks:{color:'#60a5fa',font:{family:"'DM Mono',monospace",size:10},callback:v=>v+'%'}, grid:{display:false} }
+      x: { ticks:{color:'#6b6e74',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8}, grid:{color:'rgba(255,255,255,0.04)'} },
+      yTemp: { position:'left', min:30, max:45, ticks:{color:'#4ade80',font:{size:10},callback:v=>v+'°'}, grid:{color:'rgba(255,255,255,0.04)'} },
+      yHum:  { position:'right', min:40, max:80, ticks:{color:'#60a5fa',font:{size:10},callback:v=>v+'%'}, grid:{display:false} }
     }
   }
 });
 
-// ===== Helpers =====
+// ── Helpers ──
 function setRelayBadge(id, val) {
   const el = document.getElementById(id); if (!el) return;
   const on = val === "ON";
@@ -483,100 +413,115 @@ function setRelayBadge(id, val) {
   el.className   = "badge " + (on ? "on" : "off");
 }
 
-function setMetric(cardId, valId, raw, lo, hi) {
+// setMetric ใช้ค่า min/max จาก input ที่กรอกไว้
+function setMetric(cardId, valId, raw) {
   const el = document.getElementById(valId), card = document.getElementById(cardId);
   if (!el) return;
   const num = parseFloat(raw);
   el.textContent = isNaN(num) ? "--" : num.toFixed(1);
   if (isNaN(num)) { el.className="metric-value"; card.className="metric-card"; return; }
-  const warn = num>hi || num<lo;
-  el.className   = "metric-value "+(warn?"warn":"ok");
-  card.className = "metric-card " +(warn?"warn":"ok");
+  const f = getInputEls();
+  const lo = cardId==="card-temp" ? parseFloat(f.tMin.value)||35 : parseFloat(f.hMin.value)||50;
+  const hi = cardId==="card-temp" ? parseFloat(f.tMax.value)||39 : parseFloat(f.hMax.value)||65;
+  const warn = num > hi || num < lo;
+  el.className   = "metric-value " + (warn ? "warn" : "ok");
+  card.className = "metric-card "  + (warn ? "warn" : "ok");
 }
 
 function fmtDate(ms) {
   const dt = new Date(ms);
   return {
-    date: dt.toLocaleDateString("th-TH",  {day:"2-digit",month:"2-digit",year:"2-digit"}),
-    time: dt.toLocaleTimeString("th-TH",   {hour:"2-digit",minute:"2-digit"})
+    date: dt.toLocaleDateString("th-TH", {day:"2-digit",month:"2-digit",year:"2-digit"}),
+    time: dt.toLocaleTimeString("th-TH", {hour:"2-digit",minute:"2-digit"})
   };
 }
 
-// ===== Online Watchdog =====
+// ── Online Watchdog ──
 let lastUpdateTime = 0;
 setInterval(() => {
   if (!lastUpdateTime) return;
-  const elapsed = Date.now() - lastUpdateTime;
+  const e = Date.now() - lastUpdateTime;
   const dot = document.getElementById('online-dot'), txt = document.getElementById('online-text');
-  if      (elapsed > 120000) { dot.className='online-dot error'; txt.textContent='offline'; }
-  else if (elapsed > 30000)  { dot.className='online-dot warn';  txt.textContent='ไม่ตอบสนอง'; }
+  if      (e > 120000) { dot.className='online-dot error'; txt.textContent='offline'; }
+  else if (e > 30000)  { dot.className='online-dot warn';  txt.textContent='ไม่ตอบสนอง'; }
 }, 10000);
 
-// ===== System Start/Stop =====
+// ── Inputs ──
 let currentState = "STOP";
 
+function getInputEls() {
+  return {
+    tMin: document.getElementById('inp-temp-min'),
+    tMax: document.getElementById('inp-temp-max'),
+    hMin: document.getElementById('inp-hum-min'),
+    hMax: document.getElementById('inp-hum-max'),
+  };
+}
+
+function validateField(el, hintId, val, mn, mx, label) {
+  const hint = document.getElementById(hintId);
+  if (!el.value) { el.className='input-field'; hint.className='input-hint'; hint.textContent=label; return false; }
+  if (isNaN(val)||val<mn||val>mx) { el.className='input-field error'; hint.className='input-hint err'; hint.textContent=`ค่าต้องอยู่ระหว่าง ${mn}–${mx}`; return false; }
+  el.className='input-field valid'; hint.className='input-hint'; hint.textContent='✓'; return true;
+}
+
 function validateInputs() {
-  const tEl=document.getElementById('inp-temp'), hEl=document.getElementById('inp-hum');
-  const tV=parseFloat(tEl.value), hV=parseFloat(hEl.value);
-  const hintT=document.getElementById('hint-temp'), hintH=document.getElementById('hint-hum');
+  const f=getInputEls();
+  const tMin=parseFloat(f.tMin.value), tMax=parseFloat(f.tMax.value);
+  const hMin=parseFloat(f.hMin.value), hMax=parseFloat(f.hMax.value);
   const btn=document.getElementById('btn-start'), banner=document.getElementById('val-banner');
-  let tOk=false, hOk=false;
-
-  if (!tEl.value) { tEl.className='input-field'; hintT.className='input-hint'; hintT.textContent='ช่วงปกติ 35 – 39 °C'; }
-  else if (isNaN(tV)||tV<30||tV>42) { tEl.className='input-field error'; hintT.className='input-hint err'; hintT.textContent='ค่าต้องอยู่ระหว่าง 30 – 42 °C'; }
-  else { tEl.className='input-field valid'; hintT.className='input-hint'; hintT.textContent=(tV<35||tV>39)?'⚠️ นอกช่วงปกติ':'✓ อยู่ในช่วงปกติ'; tOk=true; }
-
-  if (!hEl.value) { hEl.className='input-field'; hintH.className='input-hint'; hintH.textContent='ช่วงปกติ 50 – 65 %'; }
-  else if (isNaN(hV)||hV<30||hV>90) { hEl.className='input-field error'; hintH.className='input-hint err'; hintH.textContent='ค่าต้องอยู่ระหว่าง 30 – 90 %'; }
-  else { hEl.className='input-field valid'; hintH.className='input-hint'; hintH.textContent=(hV<50||hV>65)?'⚠️ นอกช่วงปกติ':'✓ อยู่ในช่วงปกติ'; hOk=true; }
-
-  const ok = tOk && hOk;
-  btn.disabled = !ok;
-  banner.classList.toggle('show', !ok && !!(tEl.value||hEl.value));
-  return ok;
+  let ok1=validateField(f.tMin,'hint-temp-min',tMin,30,42,'ฮีตเตอร์เปิดเมื่อต่ำกว่านี้');
+  let ok2=validateField(f.tMax,'hint-temp-max',tMax,30,42,'ฮีตเตอร์ปิดเมื่อสูงกว่านี้');
+  let ok3=validateField(f.hMin,'hint-hum-min',hMin,30,90,'หมอกเปิดเมื่อต่ำกว่านี้');
+  let ok4=validateField(f.hMax,'hint-hum-max',hMax,30,90,'หมอกปิดเมื่อสูงกว่านี้');
+  if (ok1&&ok2&&tMin>=tMax) { f.tMax.className='input-field error'; document.getElementById('hint-temp-max').className='input-hint err'; document.getElementById('hint-temp-max').textContent='ต้องมากกว่าอุณหภูมิต่ำสุด'; ok2=false; }
+  if (ok3&&ok4&&hMin>=hMax) { f.hMax.className='input-field error'; document.getElementById('hint-hum-max').className='input-hint err'; document.getElementById('hint-hum-max').textContent='ต้องมากกว่าความชื้นต่ำสุด'; ok4=false; }
+  const allOk=ok1&&ok2&&ok3&&ok4;
+  btn.disabled=!allOk;
+  const anyTyped=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value;
+  banner.classList.toggle('show',!allOk&&!!anyTyped);
+  return allOk;
 }
 
 function updateSystemUI(state) {
-  currentState = state;
+  currentState=state;
   const dot=document.getElementById('system-dot'), label=document.getElementById('system-label');
   const sub=document.getElementById('system-sub'), card=document.getElementById('system-card');
   const btnS=document.getElementById('btn-start'), btnE=document.getElementById('btn-stop');
-  const tEl=document.getElementById('inp-temp'), hEl=document.getElementById('inp-hum');
-
-  if (state === "RUN") {
+  const f=getInputEls();
+  if (state==="RUN") {
     dot.className='system-dot run'; label.textContent='ระบบทำงาน'; card.className='system-card running';
-    const t=tEl.value, h=hEl.value;
-    sub.textContent = t&&h ? `เป้าหมาย ${parseFloat(t).toFixed(1)}°C / ${parseFloat(h).toFixed(1)}%` : 'state: RUN';
+    const tMin=f.tMin.value, tMax=f.tMax.value, hMin=f.hMin.value, hMax=f.hMax.value;
+    sub.textContent=(tMin&&tMax&&hMin&&hMax)?`T: ${parseFloat(tMin).toFixed(1)}–${parseFloat(tMax).toFixed(1)}°C  H: ${parseFloat(hMin).toFixed(0)}–${parseFloat(hMax).toFixed(0)}%`:'state: RUN';
     btnS.style.display='none'; btnE.style.display='';
-    tEl.disabled=true; hEl.disabled=true;
-    // อัปเดต range บน metric card ตามค่าที่ตั้ง
-    if (t) document.getElementById('range-temp').textContent = `เป้าหมาย ${parseFloat(t).toFixed(1)}°C`;
-    if (h) document.getElementById('range-hum').textContent  = `เป้าหมาย ${parseFloat(h).toFixed(1)}%`;
+    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=true;
+    if (tMin&&tMax) document.getElementById('range-temp').textContent=`${parseFloat(tMin).toFixed(1)} – ${parseFloat(tMax).toFixed(1)} °C`;
+    if (hMin&&hMax) document.getElementById('range-hum').textContent=`${parseFloat(hMin).toFixed(0)} – ${parseFloat(hMax).toFixed(0)} %`;
   } else {
     dot.className='system-dot stop'; label.textContent='ระบบหยุด'; card.className='system-card stopped';
     sub.textContent='กรอกค่าเพื่อเริ่มทำงานใหม่';
-    btnS.style.display=''; btnE.style.display='none';
-    btnS.disabled=true; tEl.disabled=false; hEl.disabled=false;
-    document.getElementById('range-temp').textContent='ปกติ 35 – 39 °C';
-    document.getElementById('range-hum').textContent ='ปกติ 50 – 65 %';
-    // ถ้ากรอกไว้แล้วให้ validate ทันที
-    if (tEl.value && hEl.value) validateInputs();
+    btnS.style.display=''; btnE.style.display='none'; btnS.disabled=true;
+    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=false;
+    document.getElementById('range-temp').textContent='ตั้งค่าก่อนเริ่ม';
+    document.getElementById('range-hum').textContent='ตั้งค่าก่อนเริ่ม';
+    if (f.tMin.value&&f.tMax.value&&f.hMin.value&&f.hMax.value) validateInputs();
     else document.getElementById('val-banner').classList.remove('show');
   }
 }
 
 async function writeSystemLog(action, extra={}) {
-  const ts = Date.now();
-  await set(ref(db, "incubator/systemLogs/"+ts), { action, timestamp:ts, ...extra });
+  const ts=Date.now();
+  await set(ref(db,"incubator/systemLogs/"+ts), { action, timestamp:ts, ...extra });
 }
 
 async function startSystem() {
   if (!validateInputs()) { document.getElementById('val-banner').classList.add('show'); return; }
-  const tVal=parseFloat(document.getElementById('inp-temp').value);
-  const hVal=parseFloat(document.getElementById('inp-hum').value);
-  await update(ref(db,"incubator/control"), { system:"RUN", targetTemp:tVal, targetHum:hVal });
+  const f=getInputEls();
+  const tMin=parseFloat(f.tMin.value), tMax=parseFloat(f.tMax.value);
+  const hMin=parseFloat(f.hMin.value), hMax=parseFloat(f.hMax.value);
+  await update(ref(db,"incubator/control"), { system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax });
   updateSystemUI("RUN");
-  await writeSystemLog("START", { targetTemp:tVal, targetHum:hVal });
+  await writeSystemLog("START", { tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax });
 }
 
 async function stopSystem() {
@@ -586,9 +531,11 @@ async function stopSystem() {
   await writeSystemLog("STOP");
 }
 
-// Dialog
+// ── Dialog ──
 function openDialog()  { document.getElementById('confirm-overlay').classList.add('show'); }
 function closeDialog() { document.getElementById('confirm-overlay').classList.remove('show'); }
+document.getElementById('confirm-overlay').addEventListener('click', e => { if (e.target===document.getElementById('confirm-overlay')) closeDialog(); });
+
 async function confirmClearHourly() {
   closeDialog();
   await remove(ref(db,"incubator/logs"));
@@ -597,6 +544,7 @@ async function confirmClearHourly() {
   historyChart.data.labels=[]; historyChart.data.datasets[0].data=[]; historyChart.data.datasets[1].data=[];
   historyChart.update(); document.getElementById("chart-note").textContent="ยังไม่มีข้อมูล";
 }
+
 async function clearSystemLog() {
   if (!confirm("ล้างบันทึกการเปิด/ปิดระบบทั้งหมด?")) return;
   await remove(ref(db,"incubator/systemLogs"));
@@ -604,18 +552,15 @@ async function clearSystemLog() {
   document.getElementById("syslog-updated").textContent="ล้างแล้ว";
 }
 
-document.getElementById('confirm-overlay').addEventListener('click', e => {
-  if (e.target===document.getElementById('confirm-overlay')) closeDialog();
-});
-
 window.startSystem=startSystem; window.stopSystem=stopSystem;
 window.validateInputs=validateInputs; window.openDialog=openDialog;
 window.closeDialog=closeDialog; window.confirmClearHourly=confirmClearHourly;
 window.clearSystemLog=clearSystemLog;
 
-// ===== Current Data Listener =====
+// ── Firebase Listeners ──
 let isFirstLoad = true;
 
+// Current data
 onValue(ref(db,"incubator/current"), snap => {
   const d = snap.val(); if (!d) return;
   lastUpdateTime = Date.now();
@@ -623,97 +568,91 @@ onValue(ref(db,"incubator/current"), snap => {
   document.getElementById('online-text').textContent='online';
   document.getElementById('mode-pill').textContent=d.mode??"--";
 
-  // คืนค่า input จาก Firebase เสมอ (เฉพาะตอน STOP หรือ first load)
+  // Restore inputs on first load
   if (isFirstLoad) {
     isFirstLoad = false;
-    if (d.targetTemp) document.getElementById('inp-temp').value = d.targetTemp;
-    if (d.targetHum)  document.getElementById('inp-hum').value  = d.targetHum;
+    if (d.tempMin) document.getElementById('inp-temp-min').value = d.tempMin;
+    if (d.tempMax) document.getElementById('inp-temp-max').value = d.tempMax;
+    if (d.humMin)  document.getElementById('inp-hum-min').value  = d.humMin;
+    if (d.humMax)  document.getElementById('inp-hum-max').value  = d.humMax;
   }
 
-  // sync systemState ทุกครั้งที่ Firebase เปลี่ยน
-  // ครอบคลุมกรณีที่อุปกรณ์อื่นกดปุ่มแล้วหน้านี้ต้องอัปเดตตาม
+  // Sync system state ทุกครั้งที่ Firebase เปลี่ยน
   const newState = d.systemState ?? "STOP";
   if (newState !== currentState) {
     validateInputs();
     updateSystemUI(newState);
   }
 
-  setMetric("card-temp","temp",     d.temp,     35,39);
-  setMetric("card-hum", "humidity", d.humidity, 50,65);
+  setMetric("card-temp", "temp",     d.temp);
+  setMetric("card-hum",  "humidity", d.humidity);
 
-  setRelayBadge("r-fog",    d.relay?.fog);
-  setRelayBadge("r-fanMain",d.relay?.fanMain);
-  setRelayBadge("r-fan3",   d.relay?.fan3);
-  setRelayBadge("r-fan4",   d.relay?.fan4);
-  setRelayBadge("r-heater", d.relay?.heater);
+  setRelayBadge("r-fog",     d.relay?.fog);
+  setRelayBadge("r-fanMain", d.relay?.fanMain);
+  setRelayBadge("r-fan3",    d.relay?.fan3);
+  setRelayBadge("r-fan4",    d.relay?.fan4);
+  setRelayBadge("r-heater",  d.relay?.heater);
 
-  document.getElementById("servoStatus").textContent  = d.servo?.status   ?? "--";
-  document.getElementById("servoPosition").textContent= d.servo?.position ?? "--";
+  document.getElementById("servoStatus").textContent   = d.servo?.status   ?? "--";
+  document.getElementById("servoPosition").textContent = d.servo?.position ?? "--";
   document.getElementById('sensor-banner').classList.toggle('show', d.sensorFailed===true);
 });
 
-// ===== System Log Listener =====
+// System Log
 onValue(query(ref(db,"incubator/systemLogs"), limitToLast(30)), snap => {
   const tbody=document.getElementById("system-logs"); tbody.innerHTML="";
   const logs=snap.val();
   if (!logs) { document.getElementById("syslog-updated").textContent="ยังไม่มีบันทึก"; return; }
-  document.getElementById("syslog-updated").textContent =
-    "อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("syslog-updated").textContent="อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
   Object.entries(logs).sort((a,b)=>parseInt(b[0])-parseInt(a[0])).forEach(([id,item]) => {
     const ms=parseInt(item.timestamp)||parseInt(id);
     const {date,time}=fmtDate(ms);
     const isStart=item.action==="START";
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:10px;">${date}</span></td>
+      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:13px;">${date}</span></td>
       <td><span class="dot-badge ${isStart?"on":"off"}">${isStart?"START":"STOP"}</span></td>
-      <td class="td-mono">${isStart?(item.targetTemp?.toFixed(1)??"--")+" °C":"--"}</td>
-      <td class="td-mono">${isStart?(item.targetHum?.toFixed(1)??"--")+" %":"--"}</td>
+      <td class="td-mono">${isStart?(item.tempMin?.toFixed(1)??"--"):"--"}</td>
+      <td class="td-mono">${isStart?(item.tempMax?.toFixed(1)??"--"):"--"}</td>
+      <td class="td-mono">${isStart?(item.humMin?.toFixed(0)??"--"):"--"}</td>
+      <td class="td-mono">${isStart?(item.humMax?.toFixed(0)??"--"):"--"}</td>
     `;
     tbody.appendChild(tr);
   });
 });
 
-// ===== Hourly Log + Chart Listener =====
+// Hourly Log + Chart
 onValue(query(ref(db,"incubator/logs"), limitToLast(48)), snap => {
   const tbody=document.getElementById("logs"); tbody.innerHTML="";
   const logs=snap.val();
   if (!logs) { document.getElementById("chart-note").textContent="ยังไม่มีข้อมูล"; return; }
-
   const entries=Object.entries(logs).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
   const cutoff=Date.now()-24*60*60*1000;
-
-  // Chart
   const chartE=entries.filter(([id,v])=>{ const ms=parseInt(v.timestamp)||parseInt(id); return ms>1577836800000&&ms>=cutoff; });
   historyChart.data.labels=chartE.map(([id,v])=>{ const ms=parseInt(v.timestamp)||parseInt(id); return new Date(ms).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}); });
   historyChart.data.datasets[0].data=chartE.map(([,v])=>parseFloat(v.temp)||null);
   historyChart.data.datasets[1].data=chartE.map(([,v])=>parseFloat(v.humidity)||null);
   historyChart.update('none');
-  document.getElementById("chart-note").textContent=chartE.length>0
-    ? `${chartE.length} จุดข้อมูล · อัปเดต ${new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}`
-    : "ไม่มีข้อมูลใน 24 ชั่วโมงล่าสุด";
-
-  // Table
+  document.getElementById("chart-note").textContent=chartE.length>0?`${chartE.length} จุดข้อมูล · อัปเดต ${new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}`:"ไม่มีข้อมูลใน 24 ชั่วโมงล่าสุด";
   entries.slice(-20).reverse().forEach(([id,item]) => {
     const ms=parseInt(item.timestamp)||parseInt(id);
     const isReal=ms>1577836800000;
     const {date,time}=isReal?fmtDate(ms):{date:"--",time:"--"};
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:10px;">${date}</span></td>
+      <td class="td-mono" style="line-height:1.5;"><span>${time}</span><br><span style="color:var(--muted);font-size:13px;">${date}</span></td>
       <td class="td-mono">${item.temp!=null?parseFloat(item.temp).toFixed(2):"--"}</td>
       <td class="td-mono">${item.humidity!=null?parseFloat(item.humidity).toFixed(2):"--"}</td>
-      <td class="td-muted td-mono" style="font-size:11px;">${item.mode??"--"}</td>
+      <td class="td-muted td-mono" style="font-size:14px;">${item.mode??"--"}</td>
       <td><span class="dot-badge ${item.fog==="ON"?"on":"off"}">${item.fog??"--"}</span></td>
       <td><span class="dot-badge ${item.fan3==="ON"?"on":"off"}">${item.fan3??"--"}</span></td>
       <td><span class="dot-badge ${item.heater==="ON"?"on":"off"}">${item.heater??"--"}</span></td>
       <td class="td-mono">${item.servoPosition!=null?item.servoPosition+"°":"--"}</td>
-      <td class="td-muted" style="font-size:11px;">${item.servoStatus??"--"}</td>
+      <td class="td-muted" style="font-size:14px;">${item.servoStatus??"--"}</td>
     `;
     tbody.appendChild(tr);
   });
-  document.getElementById("log-updated").textContent=
-    "อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("log-updated").textContent="อัปเดต "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
 });
 </script>
 </body>
