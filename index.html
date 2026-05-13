@@ -117,7 +117,7 @@
     .log-header-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; flex:1; min-width:0; }
     .btn-clear { font-family:'DM Mono',monospace; font-size:16px; padding:7px 18px; border-radius:99px; border:1px solid rgba(248,113,113,0.35); background:rgba(248,113,113,0.07); color:var(--red); cursor:pointer; transition:all 0.15s; white-space:nowrap; flex-shrink:0; }
     .btn-clear:hover { background:rgba(248,113,113,0.15); }
-    table { width:100%; border-collapse:collapse; min-width:460px; }
+    table { width:100%; border-collapse:collapse; min-width:460px; table-layout:fixed; }
     thead th { font-size:14px; letter-spacing:0.06em; color:var(--muted); text-transform:uppercase; text-align:left; padding:0 10px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
     tbody tr:hover { background:var(--surface2); }
     tbody td { font-size:17px; padding:12px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
@@ -336,7 +336,7 @@
         <th style="width:75px;">T min°C</th>
         <th style="width:75px;">T max°C</th>
         <th style="width:65px;">H min%</th>
-        <th>H max%</th>
+        <th style="width:65px;">H max%</th>
       </tr></thead>
       <tbody id="system-logs"></tbody>
     </table>
@@ -354,14 +354,14 @@
     <table>
       <thead><tr>
         <th style="width:90px;">วันที่/เวลา</th>
-        <th style="width:46px;">°C</th>
-        <th style="width:46px;">%RH</th>
-        <th style="width:48px;">Mode</th>
-        <th style="width:52px;">หมอก</th>
-        <th style="width:56px;">พัดลม3</th>
-        <th style="width:58px;">ฮีตเตอร์</th>
-        <th style="width:52px;">Servo°</th>
-        <th>สถานะServo</th>
+        <th style="width:55px;">°C</th>
+        <th style="width:55px;">%RH</th>
+        <th style="width:55px;">Mode</th>
+        <th style="width:60px;">หมอก</th>
+        <th style="width:60px;">พัดลม3</th>
+        <th style="width:65px;">ฮีตเตอร์</th>
+        <th style="width:55px;">Servo°</th>
+        <th style="width:90px;">สถานะServo</th>
       </tr></thead>
       <tbody id="logs"></tbody>
     </table>
