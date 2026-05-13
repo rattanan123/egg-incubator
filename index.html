@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>Egg Incubator</title>
+  <title>ตู้ฟักไข่</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
 
     /* Banner */
     .banner { display:none; border-radius:var(--radius); padding:14px 18px; font-size:18px; line-height:1.5; }
-    .banner.show { display:block; }
+    .banner.show { display:block !important; }
     .banner-red { background:var(--red-bg); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
     .banner-amber { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); color:var(--amber); }
 
@@ -184,7 +184,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">🥚</div>
-    <div><div class="logo-text">Egg Incubator</div></div>
+    <div><div class="logo-text">ตู้ฟักไข่ V.1</div></div>
   </div>
   <div class="header-right">
     <div class="online-pill"><div class="online-dot" id="online-dot"></div><span id="online-text">connecting…</span></div>
@@ -275,7 +275,7 @@
         <div class="input-hint" id="hint-hum-max">หมอกปิดเมื่อสูงกว่านี้</div>
       </div>
     </div>
-    <div class="banner banner-amber" id="val-banner" style="margin-bottom:12px;">
+    <div class="banner banner-amber" id="val-banner" style="display:none;margin-bottom:12px;">
       ⚠️ กรุณากรอกค่าให้ครบทั้ง 4 ช่องก่อนเริ่มระบบ
     </div>
 
@@ -284,7 +284,7 @@
       <div class="input-group">
         <div class="input-label">จำนวนวันฟักไข่</div>
         <div class="input-wrap">
-          <input class="input-field" type="number" id="inp-days" placeholder="18" min="1" max="60" step="1" oninput="validateInputs()">
+          <input class="input-field" type="number" id="inp-days" placeholder="18" min="0.001" max="60" step="0.001" oninput="validateInputs()">
           <span class="input-unit">วัน</span>
         </div>
         <div class="input-hint" id="hint-days">เมื่อครบกำหนด ระบบแจ้งเตือน LINE</div>
@@ -387,7 +387,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, onValue, remove, update, set, query, limitToLast }
+import { getDatabase, ref, onValue, get, remove, update, set, query, limitToLast }
   from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -492,7 +492,7 @@ function validateInputs() {
   let ok3=validateField(f.hMin,'hint-hum-min',hMin,30,90,'หมอกเปิดเมื่อต่ำกว่านี้');
   let ok4=validateField(f.hMax,'hint-hum-max',hMax,30,90,'หมอกปิดเมื่อสูงกว่านี้');
   const days=parseFloat(f.days.value);
-  let ok5=validateField(f.days,'hint-days',days,1,60,'จำนวนวันที่ต้องการฟักไข่');
+  let ok5=validateField(f.days,'hint-days',days,0.001,60,'จำนวนวันที่ต้องการฟักไข่');
   if (ok1&&ok2&&tMin>=tMax) { f.tMax.className='input-field error'; document.getElementById('hint-temp-max').className='input-hint err'; document.getElementById('hint-temp-max').textContent='ต้องมากกว่าอุณหภูมิต่ำสุด'; ok2=false; }
   if (ok3&&ok4&&hMin>=hMax) { f.hMax.className='input-field error'; document.getElementById('hint-hum-max').className='input-hint err'; document.getElementById('hint-hum-max').textContent='ต้องมากกว่าความชื้นต่ำสุด'; ok4=false; }
   const allOk=ok1&&ok2&&ok3&&ok4&&ok5;
@@ -554,6 +554,7 @@ async function stopSystem() {
   if (!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ Servo จะหยุด")) return;
   await update(ref(db,"incubator/control"), { system:"STOP" });
   updateSystemUI("STOP");
+  stopCountdown(); // หยุด countdown ทันที
   await writeSystemLog("STOP");
 }
 
@@ -628,37 +629,47 @@ function stopCountdown() {
   document.getElementById('countdown-end').textContent = '--';
   endTimeMs = 0;
 }
-let isFirstLoad = true;
+// ── โหลด /control ก่อน แล้วค่อย setup listener ──
+get(ref(db,"incubator/control")).then(snap => {
+  const ctrl = snap.val();
+  if (ctrl) {
+    const f = getInputEls();
+    if (ctrl.tempMin) f.tMin.value = ctrl.tempMin;
+    if (ctrl.tempMax) f.tMax.value = ctrl.tempMax;
+    if (ctrl.humMin)  f.hMin.value = ctrl.humMin;
+    if (ctrl.humMax)  f.hMax.value = ctrl.humMax;
+    if (ctrl.durationDays) f.days.value = ctrl.durationDays;
+    validateInputs(); // validate หลัง restore ครบ
+  }
+  // setup /current listener หลัง restore เสร็จเสมอ
+  setupCurrentListener();
+}).catch(() => {
+  // ถ้าโหลด /control ไม่ได้ก็ setup listener ปกติ
+  setupCurrentListener();
+});
 
-// Current data
+function setupCurrentListener() {
+
+// ── Current Data Listener ──
 onValue(ref(db,"incubator/current"), snap => {
   const d = snap.val(); if (!d) return;
   lastUpdateTime = Date.now();
   document.getElementById('online-dot').className='online-dot';
   document.getElementById('online-text').textContent='online';
 
-  // Restore inputs on first load
-  if (isFirstLoad) {
-    isFirstLoad = false;
-    if (d.tempMin) document.getElementById('inp-temp-min').value = d.tempMin;
-    if (d.tempMax) document.getElementById('inp-temp-max').value = d.tempMax;
-    if (d.humMin)  document.getElementById('inp-hum-min').value  = d.humMin;
-    if (d.humMax)  document.getElementById('inp-hum-max').value  = d.humMax;
-    if (d.durationDays) document.getElementById('inp-days').value = d.durationDays;
-  }
-
-  // Sync system state ทุกครั้งที่ Firebase เปลี่ยน
+  // sync systemState ทุกครั้ง
   const newState = d.systemState ?? "STOP";
   if (newState !== currentState) {
-    validateInputs();
+    validateInputs(); // validate ก่อน updateSystemUI เสมอ
     updateSystemUI(newState);
-  }
-
-  // อัปเดต countdown จาก endTime ใน Firebase
-  if (d.endTime && newState === "RUN") {
-    if (d.endTime !== endTimeMs) startCountdown(d.endTime);
-  } else if (newState === "STOP" && currentState === "RUN") {
-    stopCountdown();
+    // จัดการ countdown
+    if (newState === "RUN" && d.endTime) {
+      startCountdown(d.endTime);
+    } else if (newState === "STOP") {
+      stopCountdown();
+    }
+  } else if (newState === "RUN" && d.endTime && d.endTime !== endTimeMs) {
+    startCountdown(d.endTime); // restore countdown เมื่อเปิดหน้าใหม่
   }
 
   setMetric("card-temp", "temp",     d.temp);
@@ -674,6 +685,7 @@ onValue(ref(db,"incubator/current"), snap => {
   document.getElementById("servoPosition").textContent = d.servo?.position ?? "--";
   document.getElementById('sensor-banner').classList.toggle('show', d.sensorFailed===true);
 });
+} // end setupCurrentListener
 
 // System Log
 onValue(query(ref(db,"incubator/systemLogs"), limitToLast(30)), snap => {
