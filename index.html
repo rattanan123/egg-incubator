@@ -546,6 +546,7 @@ async function startSystem() {
     durationDays:days, startTime:startTime, endTime:endTime
   });
   updateSystemUI("RUN");
+  startCountdown(endTime); // เริ่ม countdown ทันทีไม่รอ Firebase
   await writeSystemLog("START", { tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax, durationDays:days });
 }
 
@@ -656,7 +657,7 @@ onValue(ref(db,"incubator/current"), snap => {
   // อัปเดต countdown จาก endTime ใน Firebase
   if (d.endTime && newState === "RUN") {
     if (d.endTime !== endTimeMs) startCountdown(d.endTime);
-  } else if (newState === "STOP") {
+  } else if (newState === "STOP" && currentState === "RUN") {
     stopCountdown();
   }
 
