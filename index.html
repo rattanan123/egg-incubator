@@ -33,7 +33,6 @@
     .online-dot.warn { background:var(--amber); }
     .online-dot.error { background:var(--red); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .mode-pill { font-family:'DM Mono',monospace; font-size:14px; padding:6px 14px; border-radius:99px; border:1px solid var(--border2); background:var(--surface2); color:var(--accent); }
 
     .wrap { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
 
@@ -151,7 +150,6 @@
       body { padding:12px 10px 48px; }
       .wrap { gap:12px; }
       .logo-text { font-size:20px; }
-      .mode-pill { display:none; }
       .system-label { font-size:20px; }
       .input-field { font-size:24px; }
       .input-label { font-size:14px; }
@@ -190,7 +188,6 @@
   </div>
   <div class="header-right">
     <div class="online-pill"><div class="online-dot" id="online-dot"></div><span id="online-text">connecting…</span></div>
-    <div class="mode-pill" id="mode-pill">--</div>
   </div>
 </header>
 
@@ -566,7 +563,6 @@ onValue(ref(db,"incubator/current"), snap => {
   lastUpdateTime = Date.now();
   document.getElementById('online-dot').className='online-dot';
   document.getElementById('online-text').textContent='online';
-  document.getElementById('mode-pill').textContent=d.mode??"--";
 
   // Restore inputs on first load
   if (isFirstLoad) {
