@@ -252,13 +252,29 @@
       </div>
     </div>
     <div class="banner b-amber" id="vbanner" style="display:none;margin-bottom:12px;">
-      ⚠️ กรุณากรอกค่าให้ครบทั้ง 4 ช่องก่อนเริ่มระบบ
+      ⚠️ กรุณากรอกค่าให้ครบทุกช่องก่อนเริ่มระบบ
+    </div>
+    <!-- Duration: วัน + ชม + นาที -->
+    <div class="ilabel" style="margin-bottom:6px;">ระยะเวลาฟักไข่</div>
+    <div class="irow" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
+      <div class="ig">
+        <div class="ilabel" style="font-size:13px;">วัน (0–60)</div>
+        <div class="iwrap"><input class="ifield" type="number" id="dur-days" placeholder="18" min="0" max="60" step="1" oninput="validate()"><span class="iunit">วัน</span></div>
+      </div>
+      <div class="ig">
+        <div class="ilabel" style="font-size:13px;">ชั่วโมง (0–23)</div>
+        <div class="iwrap"><input class="ifield" type="number" id="dur-hrs" placeholder="0" min="0" max="23" step="1" oninput="validate()"><span class="iunit">ชม.</span></div>
+      </div>
+      <div class="ig">
+        <div class="ilabel" style="font-size:13px;">นาที (0–59)</div>
+        <div class="iwrap"><input class="ifield" type="number" id="dur-min" placeholder="0" min="0" max="59" step="1" oninput="validate()"><span class="iunit">น.</span></div>
+      </div>
     </div>
     <div class="irow" style="margin-bottom:8px;">
       <div class="ig">
-        <div class="ilabel">จำนวนวันฟักไข่</div>
-        <div class="iwrap"><input class="ifield" type="number" id="days" placeholder="18" min="0.001" max="60" step="0.001" oninput="validate()"><span class="iunit">วัน</span></div>
-        <div class="ihint" id="hdays">เมื่อครบกำหนด ระบบแจ้งเตือน LINE</div>
+        <div class="ilabel">เวลาค้างเซอร์โว</div>
+        <div class="iwrap"><input class="ifield" type="number" id="servo-hold" placeholder="1" min="0.1" max="24" step="0.5" oninput="validate()"><span class="iunit">ชม.</span></div>
+        <div class="ihint" id="hservo">135°→ค้าง → 90°→ค้าง → 90°→ค้าง → วนซ้ำ</div>
       </div>
       <div class="ig" style="justify-content:flex-end;">
         <div class="ilabel">เวลาที่เหลือ</div>
@@ -425,7 +441,11 @@ setInterval(()=>{
 let curState="STOP";
 
 function inputs() {
-  return { tMin:$('tmin'),tMax:$('tmax'),hMin:$('hmin'),hMax:$('hmax'),days:$('days') };
+  return {
+    tMin:$('tmin'), tMax:$('tmax'), hMin:$('hmin'), hMax:$('hmax'),
+    durDays:$('dur-days'), durHrs:$('dur-hrs'), durMin:$('dur-min'),
+    servoHold:$('servo-hold')
+  };
 }
 
 function vf(el,hid,v,mn,mx,label) {
@@ -437,20 +457,46 @@ function vf(el,hid,v,mn,mx,label) {
 
 function validate() {
   const f=inputs();
-  const tMin=parseFloat(f.tMin.value),tMax=parseFloat(f.tMax.value);
-  const hMin=parseFloat(f.hMin.value),hMax=parseFloat(f.hMax.value),days=parseFloat(f.days.value);
+  const tMin=parseFloat(f.tMin.value), tMax=parseFloat(f.tMax.value);
+  const hMin=parseFloat(f.hMin.value), hMax=parseFloat(f.hMax.value);
+  const servoH=parseFloat(f.servoHold.value);
+
   let ok1=vf(f.tMin,'htmin',tMin,30,42,'ฮีตเตอร์เปิดเมื่อต่ำกว่านี้');
   let ok2=vf(f.tMax,'htmax',tMax,30,42,'ฮีตเตอร์ปิดเมื่อสูงกว่านี้');
   let ok3=vf(f.hMin,'hhmin',hMin,30,90,'หมอกเปิดเมื่อต่ำกว่านี้');
   let ok4=vf(f.hMax,'hhmax',hMax,30,90,'หมอกปิดเมื่อสูงกว่านี้');
-  let ok5=vf(f.days,'hdays',days,0.001,60,'จำนวนวันที่ต้องการฟักไข่');
   if(ok1&&ok2&&tMin>=tMax){f.tMax.className='ifield err';$('htmax').className='ihint err';$('htmax').textContent='ต้องมากกว่าอุณหภูมิต่ำสุด';ok2=false;}
   if(ok3&&ok4&&hMin>=hMax){f.hMax.className='ifield err';$('hhmax').className='ihint err';$('hhmax').textContent='ต้องมากกว่าความชื้นต่ำสุด';ok4=false;}
-  const all=ok1&&ok2&&ok3&&ok4&&ok5;
+
+  // Validate duration (วัน+ชม+นาที รวมต้อง > 0)
+  const hasAnyDur = f.durDays.value||f.durHrs.value||f.durMin.value;
+  let ok5 = false;
+  if (hasAnyDur) {
+    const d=parseInt(f.durDays.value)||0, h=parseInt(f.durHrs.value)||0, m=parseInt(f.durMin.value)||0;
+    const validD=d>=0&&d<=60, validH=h>=0&&h<=23, validM=m>=0&&m<=59;
+    const totalOk=(d*86400000+h*3600000+m*60000)>0;
+    f.durDays.className='ifield '+(validD?'ok':'err');
+    f.durHrs.className ='ifield '+(validH?'ok':'err');
+    f.durMin.className ='ifield '+(validM?'ok':'err');
+    ok5 = validD&&validH&&validM&&totalOk;
+    if(!totalOk&&validD&&validH&&validM){
+      f.durDays.className=f.durHrs.className=f.durMin.className='ifield err';
+    }
+  } else {
+    f.durDays.className=f.durHrs.className=f.durMin.className='ifield';
+  }
+
+  let ok6=vf(f.servoHold,'hservo',servoH,0.1,24,'ระยะเวลาค้างของ Servo ต่อตำแหน่ง');
+
+  const all=ok1&&ok2&&ok3&&ok4&&ok5&&ok6;
   $('bstart').disabled=!all;
-  const any=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value||f.days.value;
+  const any=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value||hasAnyDur||f.servoHold.value;
   $('vbanner').classList.toggle('show',!all&&!!any);
   return all;
+}
+
+function setAllDisabled(f, dis) {
+  [f.tMin,f.tMax,f.hMin,f.hMax,f.durDays,f.durHrs,f.durMin,f.servoHold].forEach(el=>el.disabled=dis);
 }
 
 function updateUI(state) {
@@ -461,17 +507,17 @@ function updateUI(state) {
     const tMin=f.tMin.value,tMax=f.tMax.value,hMin=f.hMin.value,hMax=f.hMax.value;
     $('ssub').textContent=(tMin&&tMax&&hMin&&hMax)?`T: ${parseFloat(tMin).toFixed(1)}–${parseFloat(tMax).toFixed(1)}°C  H: ${parseFloat(hMin).toFixed(0)}–${parseFloat(hMax).toFixed(0)}%`:'RUN';
     $('bstart').style.display='none';$('bstop').style.display='';
-    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=f.days.disabled=true;
+    setAllDisabled(f, true);
     if(tMin&&tMax)$('rtemp').textContent=`${parseFloat(tMin).toFixed(1)} – ${parseFloat(tMax).toFixed(1)} °C`;
     if(hMin&&hMax)$('rhum').textContent=`${parseFloat(hMin).toFixed(0)} – ${parseFloat(hMax).toFixed(0)} %`;
   } else {
     $('sdot').className='sys-dot stop';$('slabel').textContent='ระบบหยุด';$('syscard').className='sys-card stopped';
     $('ssub').textContent='กรอกค่าเพื่อเริ่มทำงานใหม่';
     $('bstart').style.display='';$('bstop').style.display='none';$('bstart').disabled=true;
-    f.tMin.disabled=f.tMax.disabled=f.hMin.disabled=f.hMax.disabled=f.days.disabled=false;
+    setAllDisabled(f, false);
     $('rtemp').textContent='ตั้งค่าก่อนเริ่ม';$('rhum').textContent='ตั้งค่าก่อนเริ่ม';
-    if(f.tMin.value&&f.tMax.value&&f.hMin.value&&f.hMax.value&&f.days.value) validate();
-    else $('vbanner').classList.remove('show');
+    const hasSome=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value||f.durDays.value||f.durHrs.value||f.durMin.value||f.servoHold.value;
+    if(hasSome) validate(); else $('vbanner').classList.remove('show');
   }
 }
 
@@ -500,12 +546,20 @@ function stopCD() {
 async function startSys() {
   if(!validate()){$('vbanner').classList.add('show');return;}
   const f=inputs();
-  const tMin=parseFloat(f.tMin.value),tMax=parseFloat(f.tMax.value);
-  const hMin=parseFloat(f.hMin.value),hMax=parseFloat(f.hMax.value),days=parseFloat(f.days.value);
-  const st=Date.now(), et=st+days*86400000;
-  await update(ref(db,"incubator/control"),{system:"RUN",tempMin:tMin,tempMax:tMax,humMin:hMin,humMax:hMax,durationDays:days,startTime:st,endTime:et});
+  const tMin=parseFloat(f.tMin.value), tMax=parseFloat(f.tMax.value);
+  const hMin=parseFloat(f.hMin.value), hMax=parseFloat(f.hMax.value);
+  const durD=parseInt(f.durDays.value)||0, durH=parseInt(f.durHrs.value)||0, durM=parseInt(f.durMin.value)||0;
+  const servoH=parseFloat(f.servoHold.value);
+  const durationMs=durD*86400000+durH*3600000+durM*60000;
+  const st=Date.now(), et=st+durationMs;
+  await update(ref(db,"incubator/control"),{
+    system:"RUN",tempMin:tMin,tempMax:tMax,humMin:hMin,humMax:hMax,
+    durationMs,startTime:st,endTime:et,servoHoldHours:servoH
+  });
   updateUI("RUN"); startCD(et);
-  await set(ref(db,"incubator/systemLogs/"+st),{action:"START",timestamp:st,tempMin:tMin,tempMax:tMax,humMin:hMin,humMax:hMax,durationDays:days});
+  await set(ref(db,"incubator/systemLogs/"+st),{
+    action:"START",timestamp:st,tempMin:tMin,tempMax:tMax,humMin:hMin,humMax:hMax,durationMs,servoHoldHours:servoH
+  });
 }
 
 async function stopSys() {
@@ -575,11 +629,17 @@ get(ref(db,"incubator/control")).then(snap=>{
   const c=snap.val();
   if(c){
     const f=inputs();
-    if(c.tempMin)f.tMin.value=c.tempMin;if(c.tempMax)f.tMax.value=c.tempMax;
-    if(c.humMin) f.hMin.value=c.humMin; if(c.humMax) f.hMax.value=c.humMax;
-    if(c.durationDays)f.days.value=c.durationDays;
+    if(c.tempMin)f.tMin.value=c.tempMin; if(c.tempMax)f.tMax.value=c.tempMax;
+    if(c.humMin) f.hMin.value=c.humMin;  if(c.humMax) f.hMax.value=c.humMax;
+    // restore duration (durationMs ใหม่, fallback durationDays เก่า)
+    const ms=c.durationMs||((c.durationDays||0)*86400000);
+    if(ms>0){
+      f.durDays.value=Math.floor(ms/86400000)||'';
+      f.durHrs.value =Math.floor((ms%86400000)/3600000)||'';
+      f.durMin.value =Math.floor((ms%3600000)/60000)||'';
+    }
+    if(c.servoHoldHours) f.servoHold.value=c.servoHoldHours;
     validate();
-    // restore countdown ทันทีถ้าระบบกำลัง RUN
     if(c.system==="RUN"&&c.endTime) startCD(c.endTime);
   }
   setupListeners();
