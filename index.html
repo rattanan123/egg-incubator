@@ -439,6 +439,7 @@ setInterval(()=>{
 
 // ── State ──
 let curState="STOP";
+let stopGuardUntil=0; // ป้องกัน onValue revert หลังกด Stop
 
 function inputs() {
   return {
@@ -564,6 +565,7 @@ async function startSys() {
 
 async function stopSys() {
   if(!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ Servo จะหยุด"))return;
+  stopGuardUntil=Date.now()+15000; // กัน revert 15 วินาที
   await update(ref(db,"incubator/control"),{system:"STOP"});
   updateUI("STOP"); stopCD();
   await set(ref(db,"incubator/systemLogs/"+Date.now()),{action:"STOP",timestamp:Date.now()});
@@ -654,11 +656,13 @@ onValue(ref(db,"incubator/current"),snap=>{
   $('odot').className='dot';$('otxt').textContent='online';
 
   const ns=d.systemState??"STOP";
-  if(ns!==curState){
+  if(ns==="STOP") stopGuardUntil=0; // ESP32 ยืนยัน STOP แล้ว ปลด guard
+  const blocked=ns==="RUN"&&Date.now()<stopGuardUntil;
+  if(ns!==curState&&!blocked){
     validate(); updateUI(ns);
     if(ns==="RUN"&&d.endTime) startCD(d.endTime);
     else if(ns==="STOP") stopCD();
-  } else if(ns==="RUN"&&d.endTime&&d.endTime!==endMs) startCD(d.endTime);
+  } else if(ns==="RUN"&&d.endTime&&d.endTime!==endMs&&!blocked) startCD(d.endTime);
 
   setMetric("ct","temp",d.temp);
   setMetric("ch","hum",d.humidity);
