@@ -1,7 +1,8 @@
 {
   "name": "Egg Incubator",
   "short_name": "Egg",
-  "start_url": "/",
+  "start_url": "/egg-incubator/",
+  "scope": "/egg-incubator/",
   "display": "standalone",
   "background_color": "#f5f6f8",
   "theme_color": "#16a34a",

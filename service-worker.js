@@ -1,5 +1,5 @@
-const CACHE = 'egg-v1';
-const ASSETS = ['/', '/index.html'];
+const CACHE = 'egg-v2';
+const ASSETS = ['/egg-incubator/', '/egg-incubator/index.html'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -24,7 +24,7 @@ self.addEventListener('push', e => {
   const data = e.data?.json() || {};
   e.waitUntil(self.registration.showNotification(data.title || 'ตู้ฟักไข่', {
     body: data.body || '',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png'
+    icon: '/egg-incubator/icon-192.png',
+    badge: '/egg-incubator/icon-192.png'
   }));
 });
