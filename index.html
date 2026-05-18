@@ -855,7 +855,7 @@ async function startSys() {
   await update(ref(db,"incubator/control"),{
     system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax,
     durationMs, startTime:st, endTime:et, servoHoldHours:servoH,
-    activeProfile:currentProfileKey
+    activeProfile:currentProfileKey, eggCount
   });
   updateUI("RUN"); startCD(et);
 
@@ -1092,6 +1092,7 @@ get(ref(db,"incubator/control")).then(snap=>{
     validate();
     if(c.system==="RUN"&&c.endTime) startCD(c.endTime);
     if(c.startTime) currentRunStartTime=c.startTime;
+    if(c.eggCount) { $('egg-count').value=c.eggCount; currentEggCount=c.eggCount; }
   }
   setupListeners();
 }).catch(()=>setupListeners());
