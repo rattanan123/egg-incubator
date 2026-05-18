@@ -864,6 +864,17 @@ async function startSys() {
     durationMs,servoHoldHours:servoH,profile:currentProfileKey
   });
 
+  // ปิดรอบเก่าที่ยัง running ค้างอยู่
+  const runsSnap = await get(query(ref(db,"incubator/runs"),limitToLast(20)));
+  if(runsSnap.exists()){
+    const updates={};
+    runsSnap.forEach(child=>{
+      if(child.val().status==="running" && child.key!=String(st))
+        updates["incubator/runs/"+child.key+"/status"]="stopped";
+    });
+    if(Object.keys(updates).length) await update(ref(db),updates);
+  }
+
   // Task 2.3: บันทึกรอบใหม่
   await set(ref(db,"incubator/runs/"+st),{
     startTime:st, endTime:et, profile:currentProfileKey,
