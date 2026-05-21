@@ -556,10 +556,10 @@ void loop() {
       if (thresholdReady) {
         controlSystem(t, h);
         String alert = "";
-        if (t >= fan_temp        + 1.1f) alert += "อุณหภูมิสูงเกิน: " + String(t,1) + "C\n";
-        if (t <= heater_off_temp - 1.1f) alert += "อุณหภูมิต่ำเกิน: " + String(t,1) + "C\n";
-        if (h > hum_off + 1.1f)  alert += "ความชื้นสูงเกิน: " + String(h,1) + "%\n";
-        if (h < hum_on  - 1.1f)  alert += "ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
+        if (t >= fan_temp        + 1.0f) alert += "อุณหภูมิสูงเกิน: " + String(t,1) + "C\n";
+        if (t <= heater_off_temp - 1.0f) alert += "อุณหภูมิต่ำเกิน: " + String(t,1) + "C\n";
+        if (h > hum_off + 1.0f)  alert += "ความชื้นสูงเกิน: " + String(h,1) + "%\n";
+        if (h < hum_on  - 1.0f)  alert += "ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
         if (alert != "") sendLineAlert(alert);
       } else {
         Serial.println("[WAIT] รอค่าจาก Dashboard...");
