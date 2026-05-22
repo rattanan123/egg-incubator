@@ -150,7 +150,8 @@ void servoTask(void* param) {
 }
 
 // ===== Relay =====
-void relayWrite(int pin, bool on) { digitalWrite(pin, on ? LOW : HIGH); }
+void relayWrite(int pin, bool on) { digitalWrite(pin, on ? LOW : HIGH); }   // relay ปกติ (active LOW)
+void ssrWrite(int pin, bool on)   { digitalWrite(pin, on ? HIGH : LOW); }  // SSR (active HIGH)
 
 void allRelaysOff() {
   relayWrite(RELAY1, false); relayWrite(RELAY2, false); relayWrite(RELAY3, false);
@@ -246,7 +247,7 @@ void controlSystem(float t, float h) {
 
   relayWrite(RELAY1, fogOn);   relayWrite(RELAY2, fanMainOn);
   relayWrite(RELAY3, fan3On);  relayWrite(RELAY4, fan4On);
-  relayWrite(RELAY5, heaterOn);
+  ssrWrite(RELAY5, heaterOn);  // ฮีตเตอร์ใช้ SSR (active HIGH)
 }
 
 // ===== Task 2.1: โหลด stage จาก profile ตาม currentDay =====
