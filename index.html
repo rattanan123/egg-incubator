@@ -7,7 +7,9 @@
   <title>Egg Incubator</title>
   <!-- Task 3.1: PWA manifest -->
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,10 +29,10 @@
       --rd:#f87171;--rd-bg:rgba(248,113,113,0.08);
       --am:#fbbf24;
     }
-    .theme-btn{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:16px;padding:6px 14px;border-radius:99px;cursor:pointer;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);transition:all 0.2s}
+    .theme-btn{display:flex;align-items:center;gap:6px;font-family:'Kanit',sans-serif;font-size:16px;padding:6px 14px;border-radius:99px;cursor:pointer;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);transition:all 0.2s}
     .theme-btn:hover{background:var(--sur);color:var(--tx)}
     html{font-size:20px}
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:16px 14px 48px;-webkit-text-size-adjust:100%}
+    body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:16px 14px 48px;-webkit-text-size-adjust:100%}
 
     header{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto 20px;padding-bottom:16px;border-bottom:1px solid var(--bd);gap:10px}
     .header-right{display:flex;align-items:center;gap:10px;margin-left:auto}
@@ -54,25 +56,27 @@
     .stage-card.show{display:block}
     .stage-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
     .stage-name{font-size:18px;font-weight:500}
-    .stage-day{font-family:'DM Mono',monospace;font-size:16px;color:var(--mu)}
+    .stage-day{font-family:'Kanit',sans-serif;font-size:16px;color:var(--mu)}
     .stage-lock{font-size:14px;padding:4px 12px;border-radius:99px;background:var(--am);color:#fff;font-weight:500}
     .progress-bar{width:100%;height:8px;background:var(--sur2);border-radius:99px;overflow:hidden}
     .progress-fill{height:100%;background:var(--gr);border-radius:99px;transition:width 0.5s}
     .candling-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .cd-chip{font-family:'DM Mono',monospace;font-size:13px;padding:3px 10px;border-radius:99px;background:var(--sur2);border:1px solid var(--bd2);color:var(--mu)}
+    .cd-chip{font-family:'Kanit',sans-serif;font-size:13px;padding:3px 10px;border-radius:99px;background:var(--sur2);border:1px solid var(--bd2);color:var(--mu)}
     .cd-chip.done{text-decoration:line-through;opacity:0.5}
     .cd-chip.today{background:rgba(217,119,6,0.12);border-color:rgba(217,119,6,0.4);color:var(--am);font-weight:500}
 
     .metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .mc{background:var(--sur);border:1px solid var(--bd);border-radius:var(--ra);padding:20px 18px 36px;position:relative;overflow:hidden}
+    .mc{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--rs);padding:16px 18px 20px;position:relative;overflow:hidden}
     .mc::before{content:'';position:absolute;inset:0;border-radius:var(--ra);pointer-events:none}
     .mc.ok::before{box-shadow:inset 0 0 0 1.5px rgba(22,163,74,0.3)}
     .mc.warn::before{box-shadow:inset 0 0 0 1.5px rgba(220,38,38,0.35)}
+    [data-theme="dark"] .mc.ok::before{box-shadow:inset 0 0 0 1.5px rgba(74,222,128,0.35)}
+    [data-theme="dark"] .mc.warn::before{box-shadow:inset 0 0 0 1.5px rgba(248,113,113,0.4)}
     .mc-label{font-size:16px;letter-spacing:0.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px;font-weight:500}
-    .mc-val{font-family:'DM Mono',monospace;font-size:80px;font-weight:400;line-height:1;letter-spacing:-0.03em}
+    .mc-val{font-family:'Kanit',sans-serif;font-size:80px;font-weight:400;line-height:1;letter-spacing:-0.03em}
     .mc-val.ok{color:var(--gr)}.mc-val.warn{color:var(--rd)}
-    .mc-unit{font-size:18px;color:var(--mu);margin-top:8px}
-    .mc-range{position:absolute;bottom:14px;right:14px;font-family:'DM Mono',monospace;font-size:13px;color:var(--mu);text-align:right;line-height:1.6}
+    .mc-unit{font-family:'Kanit',sans-serif;font-size:36px;font-weight:400;color:var(--mu);line-height:1}
+    .mc-range{position:absolute;bottom:14px;right:14px;font-family:'Kanit',sans-serif;font-size:13px;color:var(--mu);text-align:right;line-height:1.6}
 
     .sys-card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--ra);padding:18px 16px}
     .sys-card.running{border-color:rgba(22,163,74,0.4)}.sys-card.stopped{border-color:rgba(220,38,38,0.3)}
@@ -82,13 +86,13 @@
     .sys-dot.run{background:var(--gr);box-shadow:0 0 6px rgba(22,163,74,0.4);animation:pulse 2s ease-in-out infinite}
     .sys-dot.stop{background:var(--rd)}
     .sys-label{font-size:20px;font-weight:500}
-    .sys-sub{font-size:16px;color:var(--mu);font-family:'DM Mono',monospace;margin-top:2px}
+    .sys-sub{font-size:16px;color:var(--mu);font-family:'Kanit',sans-serif;margin-top:2px}
 
     /* Task 2.1: Profile dropdown */
     .profile-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
     .profile-label{font-size:16px;letter-spacing:0.05em;color:var(--mu);text-transform:uppercase;font-weight:500;white-space:nowrap}
-    .profile-select{flex:1;min-width:140px;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:10px 14px;font-family:'DM Mono',monospace;font-size:18px;color:var(--tx);outline:none;cursor:pointer}
-    .profile-select:focus{border-color:rgba(0,0,0,0.3)}
+    .profile-select{flex:1;min-width:140px;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:10px 14px;font-family:'Kanit',sans-serif;font-size:18px;color:var(--tx);outline:none;cursor:pointer}
+    .profile-select:focus{border-color:var(--bd2)}
     /* Stage buttons */
     .stage-btns{display:none;gap:8px;margin-bottom:10px;flex-wrap:wrap}
     .stage-btns.show{display:flex}
@@ -102,7 +106,7 @@
     .stage-btn.cur-stage{box-shadow:0 0 0 2px var(--gr)}
     .stage-btn.cur-stage.lock-btn{box-shadow:0 0 0 2px var(--am)}
     .sbtn-name{font-size:15px;font-weight:500;margin-bottom:3px}
-    .sbtn-days{font-family:'DM Mono',monospace;font-size:12px;color:var(--mu)}
+    .sbtn-days{font-family:'Kanit',sans-serif;font-size:12px;color:var(--mu)}
     .stage-detail{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;display:none}
     .stage-detail.show{display:block}
     .stage-detail .svals{gap:10px}
@@ -111,20 +115,20 @@
     .ig{display:flex;flex-direction:column;gap:6px}
     .ilabel{font-size:16px;letter-spacing:0.05em;color:var(--mu);text-transform:uppercase;font-weight:500}
     .iwrap{position:relative}
-    .ifield{width:100%;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:13px 44px 13px 14px;font-family:'DM Mono',monospace;font-size:26px;color:var(--tx);outline:none;transition:border-color 0.15s;-webkit-appearance:none}
-    .ifield:focus{border-color:rgba(0,0,0,0.3)}
+    .ifield{width:100%;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:13px 44px 13px 14px;font-family:'Kanit',sans-serif;font-size:26px;color:var(--tx);outline:none;transition:border-color 0.15s;-webkit-appearance:none}
+    .ifield:focus{border-color:var(--bd2)}
     .ifield.err{border-color:rgba(220,38,38,0.6);background:rgba(220,38,38,0.04)}
     .ifield.ok{border-color:rgba(22,163,74,0.5)}
     .ifield:disabled{opacity:0.4;cursor:not-allowed}
-    .iunit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--mu);font-family:'DM Mono',monospace;pointer-events:none}
+    .iunit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--mu);font-family:'Kanit',sans-serif;pointer-events:none}
     .ihint{font-size:14px;color:var(--mu);line-height:1.4}
     .ihint.err{color:var(--rd)}
 
     .sys-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
-    .btn-go{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;padding:14px 28px;border-radius:99px;cursor:pointer;transition:all 0.2s;background:rgba(22,163,74,0.08);color:var(--gr);border:1px solid rgba(22,163,74,0.35);min-width:140px;text-align:center}
+    .btn-go{font-family:'Kanit',sans-serif;font-size:20px;font-weight:500;padding:14px 28px;border-radius:99px;cursor:pointer;transition:all 0.2s;background:rgba(22,163,74,0.08);color:var(--gr);border:1px solid rgba(22,163,74,0.35);min-width:140px;text-align:center}
     .btn-go:hover:not(:disabled){background:rgba(22,163,74,0.15)}
     .btn-go:disabled{opacity:0.35;cursor:not-allowed}
-    .btn-stop{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;padding:14px 28px;border-radius:99px;cursor:pointer;transition:all 0.2s;background:rgba(220,38,38,0.08);color:var(--rd);border:1px solid rgba(220,38,38,0.35);min-width:140px;text-align:center}
+    .btn-stop{font-family:'Kanit',sans-serif;font-size:20px;font-weight:500;padding:14px 28px;border-radius:99px;cursor:pointer;transition:all 0.2s;background:rgba(220,38,38,0.08);color:var(--rd);border:1px solid rgba(220,38,38,0.35);min-width:140px;text-align:center}
     .btn-stop:hover{background:rgba(220,38,38,0.15)}
 
     .bg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -134,24 +138,24 @@
     .rrow{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--rs)}
     .rrow:hover{background:var(--sur2)}
     .rname{font-size:20px}
-    .badge{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;padding:5px 13px;border-radius:99px}
-    .badge.on{background:var(--gr-bg);color:var(--gr);border:1px solid rgba(22,163,74,0.3)}
+    .badge{font-family:'Kanit',sans-serif;font-size:16px;font-weight:500;padding:5px 13px;border-radius:99px}
+    .badge.on{background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
     .badge.off{background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
     .badge.lock{background:rgba(217,119,6,0.12);color:var(--am);border:1px solid rgba(217,119,6,0.4)}
     .svals{display:flex;flex-direction:column;gap:14px}
     .srow{display:flex;justify-content:space-between;align-items:center}
     .skey{font-size:20px;color:var(--mu)}
-    .sval{font-family:'DM Mono',monospace;font-size:22px}
+    .sval{font-family:'Kanit',sans-serif;font-size:22px}
 
     /* Task 2.4: Chart range tabs */
     .cwrap{background:var(--sur);border:1px solid var(--bd);border-radius:var(--ra);padding:18px 16px}
     .cheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
     .cheader-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .clegend{display:flex;gap:16px}
-    .li{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--mu);font-family:'DM Mono',monospace}
+    .li{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--mu);font-family:'Kanit',sans-serif}
     .ld{width:9px;height:9px;border-radius:50%}
     .range-tabs{display:flex;gap:4px}
-    .rtab{font-family:'DM Mono',monospace;font-size:14px;padding:5px 12px;border-radius:99px;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);cursor:pointer;transition:all 0.15s}
+    .rtab{font-family:'Kanit',sans-serif;font-size:14px;padding:5px 12px;border-radius:99px;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);cursor:pointer;transition:all 0.15s}
     .rtab.active{background:var(--gr-bg);color:var(--gr);border-color:rgba(22,163,74,0.4)}
     .rtab:hover:not(.active){background:var(--sur)}
 
@@ -159,18 +163,18 @@
     .lheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
     .lhl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1;min-width:0}
     .lhbtns{display:flex;gap:8px;flex-shrink:0}
-    .btn-clr{font-family:'DM Mono',monospace;font-size:16px;padding:7px 18px;border-radius:99px;border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.06);color:var(--rd);cursor:pointer;white-space:nowrap}
+    .btn-clr{font-family:'Kanit',sans-serif;font-size:16px;padding:7px 18px;border-radius:99px;border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.06);color:var(--rd);cursor:pointer;white-space:nowrap}
     .btn-clr:hover{background:rgba(220,38,38,0.12)}
-    .btn-csv{font-family:'DM Mono',monospace;font-size:16px;padding:7px 18px;border-radius:99px;border:1px solid rgba(22,163,74,0.35);background:rgba(22,163,74,0.06);color:var(--gr);cursor:pointer;white-space:nowrap}
+    .btn-csv{font-family:'Kanit',sans-serif;font-size:16px;padding:7px 18px;border-radius:99px;border:1px solid rgba(22,163,74,0.35);background:rgba(22,163,74,0.06);color:var(--gr);cursor:pointer;white-space:nowrap}
     .btn-csv:hover{background:rgba(22,163,74,0.12)}
     table{width:100%;border-collapse:collapse;min-width:460px;table-layout:fixed}
     thead th{font-size:14px;letter-spacing:0.06em;color:var(--mu);text-transform:uppercase;text-align:left;padding:0 10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
     tbody tr:hover{background:var(--sur2)}
     tbody td{font-size:17px;padding:12px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
     tbody tr:last-child td{border-bottom:none}
-    .tm{font-family:'DM Mono',monospace}.tmu{color:var(--mu)}
-    .dbadge{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:15px;padding:4px 11px;border-radius:99px}
-    .dbadge.on{background:var(--gr-bg);color:var(--gr)}.dbadge.off{background:var(--sur2);color:var(--mu)}
+    .tm{font-family:'Kanit',sans-serif}.tmu{color:var(--mu)}
+    .dbadge{display:inline-flex;align-items:center;gap:5px;font-family:'Kanit',sans-serif;font-size:15px;padding:4px 11px;border-radius:99px}
+    .dbadge.on{background:var(--sur2);color:var(--mu)}.dbadge.off{background:var(--sur2);color:var(--mu)}
     .dbadge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
 
     /* Dialogs */
@@ -181,12 +185,12 @@
     .dtitle{font-size:22px;font-weight:500;margin-bottom:8px}
     .ddesc{font-size:18px;color:var(--mu);line-height:1.6;margin-bottom:20px}
     .dbtns{display:flex;gap:10px;justify-content:flex-end}
-    .dcancel{font-family:'DM Mono',monospace;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);cursor:pointer}
-    .dconfirm{font-family:'DM Mono',monospace;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid rgba(220,38,38,0.4);background:rgba(220,38,38,0.08);color:var(--rd);cursor:pointer}
+    .dcancel{font-family:'Kanit',sans-serif;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid var(--bd2);background:var(--sur2);color:var(--mu);cursor:pointer}
+    .dconfirm{font-family:'Kanit',sans-serif;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid rgba(220,38,38,0.4);background:rgba(220,38,38,0.08);color:var(--rd);cursor:pointer}
     .dconfirm:hover{background:rgba(220,38,38,0.15)}
-    .dconfirm-gr{font-family:'DM Mono',monospace;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid rgba(22,163,74,0.4);background:rgba(22,163,74,0.08);color:var(--gr);cursor:pointer}
+    .dconfirm-gr{font-family:'Kanit',sans-serif;font-size:16px;padding:10px 20px;border-radius:99px;border:1px solid rgba(22,163,74,0.4);background:rgba(22,163,74,0.08);color:var(--gr);cursor:pointer}
     .dconfirm-gr:hover{background:rgba(22,163,74,0.15)}
-    .dinput{width:100%;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:12px 14px;font-family:'DM Mono',monospace;font-size:24px;color:var(--tx);outline:none;margin-bottom:16px}
+    .dinput{width:100%;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);padding:12px 14px;font-family:'Kanit',sans-serif;font-size:24px;color:var(--tx);outline:none;margin-bottom:16px}
 
     /* Task 2.3: Run history */
     th.sortable{cursor:pointer;user-select:none}
@@ -194,7 +198,7 @@
     th.sortable::after{content:' ⇅';font-size:10px;opacity:0.35}
     th.sortable.asc::after{content:' ▲';opacity:1;color:var(--gr)}
     th.sortable.desc::after{content:' ▼';opacity:1;color:var(--gr)}
-    .run-rate{font-family:'DM Mono',monospace;font-size:18px;font-weight:500}
+    .run-rate{font-family:'Kanit',sans-serif;font-size:18px;font-weight:500}
     .run-rate.high{color:var(--gr)}.run-rate.mid{color:var(--am)}.run-rate.low{color:var(--rd)}
 
     @media(max-width:768px){.mc-val{font-size:65px}}
@@ -204,7 +208,7 @@
       .sys-label{font-size:20px}.ifield{font-size:24px}.ilabel{font-size:14px}
       .btn-go,.btn-stop{font-size:19px;padding:13px 0;width:100%;min-width:unset}
       .sys-btns{flex-direction:column}
-      .mc{padding:16px 14px 36px}.mc-val{font-size:56px}.mc-label{font-size:14px}.mc-unit{font-size:15px}.mc-range{font-size:11px}
+      .mc{padding:16px 14px}.mc-val{font-size:56px}.mc-label{font-size:14px}.mc-unit{font-size:26px}
       .bg2{grid-template-columns:1fr}
       .rname{font-size:20px}.badge{font-size:16px}
       thead th{font-size:12px;padding:0 8px 10px}
@@ -262,32 +266,51 @@
     🚨 เซ็นเซอร์อุณหภูมิขัดข้อง — ESP32 ปิด Relay ทั้งหมดเพื่อความปลอดภัย
   </div>
 
-  <!-- Task 2.1: Stage progress -->
-  <div class="stage-card" id="stage-card">
-    <div class="stage-row">
-      <div>
-        <div class="stage-name" id="stage-name">--</div>
-        <div class="stage-day" id="stage-day-txt">วันที่ -- จาก -- วัน</div>
+  <!-- Stage + Metrics combined card -->
+  <div class="stage-card show" id="stage-card">
+    <div id="stage-info" style="display:none;">
+      <div class="stage-row">
+        <div>
+          <div class="stage-name" id="stage-name">--</div>
+          <div class="stage-day" id="stage-day-txt">วันที่ -- จาก -- วัน</div>
+        </div>
+        <div id="lockdown-badge" class="stage-lock" style="display:none">🔒 Lockdown</div>
       </div>
-      <div id="lockdown-badge" class="stage-lock" style="display:none">🔒 Lockdown</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div id="stage-countdown" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="flex:1;">
+            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;letter-spacing:0.02em;">เวลาที่เหลือ</div>
+            <div style="font-family:'Kanit',sans-serif;font-size:28px;font-weight:700;color:var(--gr);line-height:1.1;" id="cdtxt">--</div>
+            <div style="font-size:13px;color:var(--mu);margin-top:5px;" id="cdend">--</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;letter-spacing:0.02em;">อีกกี่วัน</div>
+            <div style="font-size:28px;font-weight:700;line-height:1.1;color:var(--tx);" id="cd-days-left">--</div>
+          </div>
+        </div>
+      </div>
+      <div class="candling-row" id="candling-row" style="margin-bottom:14px;"></div>
+      <div style="border-top:1px solid var(--bd);margin-bottom:14px;"></div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-    <div class="candling-row" id="candling-row"></div>
-  </div>
 
-  <!-- Metrics -->
-  <div class="metrics-row">
-    <div class="mc" id="ct">
-      <div class="mc-label">อุณหภูมิ</div>
-      <div class="mc-val" id="temp">--</div>
-      <div class="mc-unit">degree Celsius</div>
-      <div class="mc-range" id="rtemp">ตั้งค่าก่อนเริ่ม</div>
-    </div>
-    <div class="mc" id="ch">
-      <div class="mc-label">ความชื้น</div>
-      <div class="mc-val" id="hum">--</div>
-      <div class="mc-unit">percent</div>
-      <div class="mc-range" id="rhum">ตั้งค่าก่อนเริ่ม</div>
+    <!-- Metrics always visible -->
+    <div style="font-size:14px;letter-spacing:0.06em;color:var(--mu);text-transform:uppercase;font-weight:500;margin-bottom:10px;">สภาพภายในตู้ตอนนี้</div>
+    <div class="metrics-row">
+      <div class="mc" id="ct">
+        <div class="mc-label">อุณหภูมิ</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="mc-val" id="temp">--</div>
+          <div class="mc-unit">°C</div>
+        </div>
+      </div>
+      <div class="mc" id="ch">
+        <div class="mc-label">ความชื้น</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="mc-val" id="hum">--</div>
+          <div class="mc-unit">%</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -307,8 +330,8 @@
     <div class="profile-row">
       <div class="profile-label">โปรไฟล์ไข่</div>
       <select class="profile-select" id="profile-sel" onchange="onProfileChange()">
-        <option value="custom">กำหนดเอง</option>
         <option value="chicken">ไก่ (21 วัน)</option>
+        <option value="custom">กำหนดเอง</option>
       </select>
     </div>
     <!-- ปุ่มเลือกช่วง -->
@@ -355,73 +378,62 @@
       ⚠️ กรุณากรอกค่าให้ครบทุกช่องก่อนเริ่มระบบ
     </div>
 
-    <div class="ilabel" style="margin-bottom:6px;">ระยะเวลาฟักไข่</div>
-    <div class="irow" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
-      <div class="ig">
-        <div class="ilabel" style="font-size:13px;">วัน (0–60)</div>
-        <div class="iwrap"><input class="ifield" type="number" id="dur-days" placeholder="18" min="0" max="60" step="1" oninput="validate()"><span class="iunit">วัน</span></div>
+    <div id="duration-inputs">
+      <div class="ilabel" style="margin-bottom:6px;">ระยะเวลาฟักไข่</div>
+      <div class="irow" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
+        <div class="ig">
+          <div class="ilabel" style="font-size:13px;">วัน (0–60)</div>
+          <div class="iwrap"><input class="ifield" type="number" id="dur-days" placeholder="18" min="0" max="60" step="1" oninput="validate()"><span class="iunit">วัน</span></div>
+        </div>
+        <div class="ig">
+          <div class="ilabel" style="font-size:13px;">ชั่วโมง (0–23)</div>
+          <div class="iwrap"><input class="ifield" type="number" id="dur-hrs" placeholder="0" min="0" max="23" step="1" oninput="validate()"><span class="iunit">ชม.</span></div>
+        </div>
+        <div class="ig">
+          <div class="ilabel" style="font-size:13px;">นาที (0–59)</div>
+          <div class="iwrap"><input class="ifield" type="number" id="dur-min" placeholder="0" min="0" max="59" step="1" oninput="validate()"><span class="iunit">น.</span></div>
+        </div>
       </div>
-      <div class="ig">
-        <div class="ilabel" style="font-size:13px;">ชั่วโมง (0–23)</div>
-        <div class="iwrap"><input class="ifield" type="number" id="dur-hrs" placeholder="0" min="0" max="23" step="1" oninput="validate()"><span class="iunit">ชม.</span></div>
-      </div>
-      <div class="ig">
-        <div class="ilabel" style="font-size:13px;">นาที (0–59)</div>
-        <div class="iwrap"><input class="ifield" type="number" id="dur-min" placeholder="0" min="0" max="59" step="1" oninput="validate()"><span class="iunit">น.</span></div>
-      </div>
-    </div>
-    <div class="irow" style="margin-bottom:8px;">
-      <div class="ig">
-        <div class="ilabel">เวลาค้างเซอร์โว</div>
-        <div class="iwrap"><input class="ifield" type="number" id="servo-hold" placeholder="1" min="0.1" max="24" step="0.5" oninput="validate()"><span class="iunit">ชม.</span></div>
-        <div class="ihint" id="hservo">135°→ค้าง→90°→ค้าง→45°→ค้าง→วน</div>
-      </div>
-      <div class="ig" style="justify-content:flex-end;">
-        <div class="ilabel">เวลาที่เหลือ</div>
-        <div style="font-family:'DM Mono',monospace;font-size:22px;color:var(--gr);padding:12px 0;" id="cdtxt">--</div>
-        <div style="font-size:13px;color:var(--mu);" id="cdend">--</div>
+      <div class="irow" style="margin-bottom:8px;grid-template-columns:1fr;">
+        <div class="ig">
+          <div class="ilabel">เวลาค้างเซอร์โว</div>
+          <div class="iwrap"><input class="ifield" type="number" id="servo-hold" placeholder="1" min="0.1" max="24" step="0.5" oninput="validate()"><span class="iunit">ชม.</span></div>
+          <div class="ihint" id="hservo">135°→ค้าง→90°→ค้าง→45°→ค้าง→วน</div>
+        </div>
       </div>
     </div>
-
-    <!-- Task 2.3: จำนวนไข่ -->
-    <div class="irow" style="margin-bottom:8px;">
-      <div class="ig">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+      <div class="ig" style="flex:1;">
         <div class="ilabel">จำนวนไข่ที่ใส่</div>
         <div class="iwrap"><input class="ifield" type="number" id="egg-count" placeholder="30" min="1" max="500" step="1"><span class="iunit">ฟอง</span></div>
         <div class="ihint">ใส่เพื่อคำนวณอัตราการฟักหลังครบรอบ</div>
       </div>
+      <button class="btn-stop" id="bstop" onclick="stopSys()" style="display:none;flex-shrink:0;">⏹ หยุดทำงาน</button>
     </div>
 
     <div class="sys-btns">
       <button class="btn-go" id="bstart" onclick="startSys()" disabled>▶ เริ่มทำงาน</button>
-      <button class="btn-stop" id="bstop" onclick="stopSys()" style="display:none;">⏹ หยุดทำงาน</button>
     </div>
   </div>
 
-  <!-- Relay + Servo -->
-  <div class="bg2">
-    <div class="card">
-      <div class="card-title">สถานะอุปกรณ์</div>
-      <ul class="rlist">
-        <li class="rrow"><span class="rname">ฮีตเตอร์</span><span class="badge off" id="r5">OFF</span></li>
-        <li class="rrow"><span class="rname">หมอก</span><span class="badge off" id="r1">OFF</span></li>
-        <li class="rrow"><span class="rname">พัดลมหมอก</span><span class="badge off" id="r2">OFF</span></li>
-        <li class="rrow"><span class="rname">พัดลมดูด</span><span class="badge off" id="r3">OFF</span></li>
-        <li class="rrow"><span class="rname">พัดลมระบาย</span><span class="badge off" id="r4">OFF</span></li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="card-title">Servo</div>
-      <div class="svals">
-        <div class="srow"><span class="skey">สถานะ</span><span class="sval" id="sstatus">--</span></div>
-        <div class="srow"><span class="skey">มุม</span><span class="sval"><span id="spos">--</span>°</span></div>
-        <!-- Task 2.2: Lockdown badge -->
-        <div class="srow" id="turning-row" style="display:none">
-          <span class="skey">การพลิก</span>
-          <span class="badge lock" id="turning-badge">🔒 หยุดพลิก</span>
-        </div>
-      </div>
-    </div>
+  <!-- Relay + Servo (รวม card เดียว) -->
+  <div class="card">
+    <div class="card-title">สถานะอุปกรณ์ &amp; Servo</div>
+    <ul class="rlist">
+      <li class="rrow"><span class="rname">ฮีตเตอร์</span><span class="badge off" id="r5">OFF</span></li>
+      <li class="rrow"><span class="rname">หมอก</span><span class="badge off" id="r1">OFF</span></li>
+      <li class="rrow"><span class="rname">พัดลมหมอก</span><span class="badge off" id="r2">OFF</span></li>
+      <li class="rrow"><span class="rname">พัดลมดูด</span><span class="badge off" id="r3">OFF</span></li>
+      <li class="rrow"><span class="rname">พัดลมระบาย</span><span class="badge off" id="r4">OFF</span></li>
+      <li class="rrow" style="border-top:1px solid var(--bd);margin-top:6px;padding-top:12px;">
+        <span class="rname">Servo สถานะ</span><span class="badge off" id="sstatus">--</span>
+      </li>
+      <li class="rrow"><span class="rname">Servo มุม</span><span class="badge off" id="spos">--°</span></li>
+      <li class="rrow" id="turning-row" style="display:none">
+        <span class="rname">การพลิก</span>
+        <span class="badge lock" id="turning-badge">🔒 หยุดพลิก</span>
+      </li>
+    </ul>
   </div>
 
   <!-- Task 2.4: Chart with time range tabs -->
@@ -442,7 +454,7 @@
       </div>
     </div>
     <canvas id="chart" height="110"></canvas>
-    <div style="font-size:14px;color:var(--mu);margin-top:8px;font-family:'DM Mono',monospace;" id="cnote">กำลังโหลด...</div>
+    <div style="font-size:14px;color:var(--mu);margin-top:8px;font-family:'Kanit',sans-serif;" id="cnote">กำลังโหลด...</div>
   </div>
 
   <!-- System Log -->
@@ -450,7 +462,7 @@
     <div class="lheader">
       <div class="lhl">
         <div class="card-title" style="margin:0;">บันทึกการเปิด/ปิดระบบ</div>
-        <div style="font-size:14px;color:var(--mu);font-family:'DM Mono',monospace;" id="slog-ts">--</div>
+        <div style="font-size:14px;color:var(--mu);font-family:'Kanit',sans-serif;" id="slog-ts">--</div>
       </div>
       <button class="btn-clr" onclick="clearSysLog()">ล้าง</button>
     </div>
@@ -472,7 +484,7 @@
     <div class="lheader">
       <div class="lhl">
         <div class="card-title" style="margin:0;">บันทึกรายชั่วโมง</div>
-        <div style="font-size:14px;color:var(--mu);font-family:'DM Mono',monospace;" id="hlog-ts">--</div>
+        <div style="font-size:14px;color:var(--mu);font-family:'Kanit',sans-serif;" id="hlog-ts">--</div>
       </div>
       <div class="lhbtns">
         <button class="btn-csv" onclick="exportCSV()">⬇ CSV</button>
@@ -498,7 +510,7 @@
     <div class="lheader">
       <div class="lhl">
         <div class="card-title" style="margin:0;">ประวัติการฟัก</div>
-        <div style="font-size:14px;color:var(--mu);font-family:'DM Mono',monospace;" id="runs-ts">--</div>
+        <div style="font-size:14px;color:var(--mu);font-family:'Kanit',sans-serif;" id="runs-ts">--</div>
       </div>
     </div>
     <table>
@@ -537,9 +549,9 @@ const PROFILES = {
   chicken: {
     name:"ไก่", totalDays:21,
     stages:{
-      "0":{name:"ระยะฟัก (ต้น)",  dayStart:1,  dayEnd:10, tempMin:37.5,tempMax:37.8,humMin:55,humMax:60,servoHoldHours:1,  turning:true},
-      "1":{name:"ระยะฟัก (ปลาย)", dayStart:11, dayEnd:18, tempMin:37.5,tempMax:37.8,humMin:55,humMax:60,servoHoldHours:2,  turning:true},
-      "2":{name:"Lockdown",        dayStart:19, dayEnd:21, tempMin:37.0,tempMax:37.0,humMin:67,humMax:70,servoHoldHours:2,  turning:false}
+      "0":{name:"ระยะฟัก (ต้น)",  dayStart:1,  dayEnd:10, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:1,  turning:true},
+      "1":{name:"ระยะฟัก (ปลาย)", dayStart:11, dayEnd:18, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:2,  turning:true},
+      "2":{name:"Lockdown",        dayStart:19, dayEnd:21, tempMin:36.8,tempMax:37.0,humMin:64,humMax:65,servoHoldHours:2,  turning:false}
     },
     candlingDays:[10,18]
   },
@@ -583,8 +595,16 @@ function setMetric(cid,vid,raw) {
   const n=parseFloat(raw);
   el.textContent=isNaN(n)?"--":n.toFixed(1);
   if(isNaN(n)){el.className="mc-val";card.className="mc";return;}
-  const lo=cid==="ct"?parseFloat($('tmin').value)||35:parseFloat($('hmin').value)||50;
-  const hi=cid==="ct"?parseFloat($('tmax').value)||39:parseFloat($('hmax').value)||65;
+  let lo,hi;
+  if(currentProfileKey==="custom"){
+    lo=cid==="ct"?parseFloat($('tmin').value)||35:parseFloat($('hmin').value)||50;
+    hi=cid==="ct"?parseFloat($('tmax').value)||39:parseFloat($('hmax').value)||65;
+  } else if(cid==="ct"){
+    lo=isLockdownStage?36.8:36; hi=isLockdownStage?37:38;
+  } else {
+    lo=isLockdownStage?64:50;
+    hi=isLockdownStage?65:60;
+  }
   const w=n>hi||n<lo;
   el.className="mc-val "+(w?"warn":"ok");
   card.className="mc "+(w?"warn":"ok");
@@ -602,10 +622,12 @@ setInterval(()=>{
 // ── State ──
 let curState="STOP";
 let stopGuardUntil=0;
-let currentProfileKey="custom";
+let currentProfileKey=$('profile-sel').value;
 let currentRunStartTime=0;
+let currentStartStageIdx=0;
 let currentEggCount=0;
 let currentRunEndMs=0;
+let isLockdownStage=false;
 let allHourlyLogs={};  // cache สำหรับ Export CSV
 
 function inputs() {
@@ -623,6 +645,8 @@ function onProfileChange() {
   currentProfileKey=$('profile-sel').value;
   const isCustom=currentProfileKey==="custom";
   const btnWrap=$('stage-btns');
+  $('manual-inputs').style.display=isCustom?'':'none';
+  $('duration-inputs').style.display=isCustom?'':'none';
   if(isCustom){
     btnWrap.classList.remove('show');
     $('stage-detail').classList.remove('show');
@@ -747,15 +771,12 @@ function updateUI(state) {
       :(tMin&&tMax&&hMin&&hMax)?`T: ${parseFloat(tMin).toFixed(1)}–${parseFloat(tMax).toFixed(1)}°C  H: ${parseFloat(hMin).toFixed(0)}–${parseFloat(hMax).toFixed(0)}%`:'RUN';
     $('bstart').style.display='none';$('bstop').style.display='';
     setAllDisabled(f,true);
-    if(tMin&&tMax)$('rtemp').textContent=`${parseFloat(tMin).toFixed(1)} – ${parseFloat(tMax).toFixed(1)} °C`;
-    if(hMin&&hMax)$('rhum').textContent=`${parseFloat(hMin).toFixed(0)} – ${parseFloat(hMax).toFixed(0)} %`;
   } else {
     $('sdot').className='sys-dot stop';$('slabel').textContent='ระบบหยุด';$('syscard').className='sys-card stopped';
     $('ssub').textContent='กรอกค่าเพื่อเริ่มทำงานใหม่';
     $('bstart').style.display='';$('bstop').style.display='none';$('bstart').disabled=true;
     setAllDisabled(f,false);
-    $('rtemp').textContent='ตั้งค่าก่อนเริ่ม';$('rhum').textContent='ตั้งค่าก่อนเริ่ม';
-    $('stage-card').classList.remove('show');
+    $('stage-info').style.display='none';
     const hasSome=f.tMin.value||f.tMax.value||f.hMin.value||f.hMax.value||f.durDays.value||f.durHrs.value||f.durMin.value||f.servoHold.value;
     if(hasSome) validate(); else $('vbanner').classList.remove('show');
   }
@@ -767,29 +788,40 @@ function startCD(et){
   endMs=et; currentRunEndMs=et;
   if(cdTimer)clearInterval(cdTimer);
   cdTimer=setInterval(tickCD,1000); tickCD();
+  $('stage-countdown').style.display='';
 }
 function tickCD(){
   const diff=endMs-Date.now();
-  if(diff<=0){$('cdtxt').textContent='หมดเวลา';$('cdtxt').style.color='var(--rd)';clearInterval(cdTimer);return;}
+  if(diff<=0){
+    $('cdtxt').textContent='หมดเวลา';$('cdtxt').style.color='var(--rd)';
+    $('cd-days-left').textContent='0 วัน';clearInterval(cdTimer);return;
+  }
   const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000);
   const m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
   $('cdtxt').textContent=`${d}วัน ${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   $('cdtxt').style.color=d<1?'var(--am)':'var(--gr)';
+  const daysLeft=Math.ceil(diff/86400000);
+  $('cd-days-left').textContent=daysLeft>0?`อีก ${daysLeft} วัน`:'< 1 วัน';
+  $('cd-days-left').style.color=daysLeft<=1?'var(--am)':'var(--tx)';
   const ed=new Date(endMs);
   $('cdend').textContent='ครบ '+ed.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+ed.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
 }
 function stopCD(){
   if(cdTimer)clearInterval(cdTimer);
-  $('cdtxt').textContent='--';$('cdtxt').style.color='var(--gr)';$('cdend').textContent='--';endMs=0;
+  $('cdtxt').textContent='--';$('cdtxt').style.color='var(--gr)';
+  $('cdend').textContent='--';$('cd-days-left').textContent='--';
+  endMs=0; $('stage-countdown').style.display='none';
 }
 
 // ── Task 2.1: Stage progress ──
-function updateStageCard(startTimeMs, profile) {
-  if(!profile||profile==="custom"||!startTimeMs){$('stage-card').classList.remove('show');return;}
+function updateStageCard(startTimeMs, profile, startStageIdx=0) {
+  if(!profile||profile==="custom"||!startTimeMs){$('stage-info').style.display='none';return;}
   const p=PROFILES[profile]; if(!p)return;
-  const currentDay=Math.floor((Date.now()-startTimeMs)/86400000)+1;
+  const stageList=Object.values(p.stages);
+  const startDayOffset=(stageList[startStageIdx]?.dayStart??1)-1;
+  const currentDay=Math.floor((Date.now()-startTimeMs)/86400000)+1+startDayOffset;
   const pct=Math.min((currentDay/p.totalDays)*100,100);
-  $('stage-card').classList.add('show');
+  $('stage-info').style.display='';
   $('progress-fill').style.width=pct.toFixed(1)+'%';
   $('stage-day-txt').textContent=`วันที่ ${currentDay} จาก ${p.totalDays} วัน`;
 
@@ -801,6 +833,7 @@ function updateStageCard(startTimeMs, profile) {
   }
   $('stage-name').textContent=stageName;
   $('lockdown-badge').style.display=isLockdown?'':'none';
+  isLockdownStage=isLockdown;
 
   // ไฮไลต์ปุ่ม stage ที่ตรงกับวันปัจจุบัน
   const stageEntries=Object.values(p.stages);
@@ -832,16 +865,16 @@ async function startSys() {
     tMin=parseFloat(f.tMin.value); tMax=parseFloat(f.tMax.value);
     hMin=parseFloat(f.hMin.value); hMax=parseFloat(f.hMax.value);
   } else {
-    const firstStage=Object.values(PROFILES[currentProfileKey].stages)[0];
-    tMin=firstStage.tempMin; tMax=firstStage.tempMax;
-    hMin=firstStage.humMin;  hMax=firstStage.humMax;
+    const selStage=Object.values(PROFILES[currentProfileKey].stages)[selectedStageIdx];
+    tMin=selStage.tempMin; tMax=selStage.tempMax;
+    hMin=selStage.humMin;  hMax=selStage.humMax;
   }
   const durD=parseInt(f.durDays.value)||0,durH=parseInt(f.durHrs.value)||0,durM=parseInt(f.durMin.value)||0;
   const servoH=parseFloat(f.servoHold.value);
   const durationMs=durD*86400000+durH*3600000+durM*60000;
   const st=Date.now(), et=st+durationMs;
   const eggCount=parseInt($('egg-count').value)||0;
-  currentRunStartTime=st; currentEggCount=eggCount;
+  currentRunStartTime=st; currentStartStageIdx=selectedStageIdx; currentEggCount=eggCount;
 
   // Task 2.1: เขียน profile stages ไป Firebase ก่อนเริ่ม
   if(!isCustom){
@@ -855,7 +888,7 @@ async function startSys() {
   await update(ref(db,"incubator/control"),{
     system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax,
     durationMs, startTime:st, endTime:et, servoHoldHours:servoH,
-    activeProfile:currentProfileKey, eggCount
+    activeProfile:currentProfileKey, startStageIdx:selectedStageIdx, eggCount
   });
   updateUI("RUN"); startCD(et);
 
@@ -986,7 +1019,7 @@ function renderHLog(){
       <td class="tm">${v.humidity!=null?parseFloat(v.humidity).toFixed(2):"--"}</td>
       <td><span class="dbadge ${v.heater==="ON"?"on":"off"}">${v.heater??"--"}</span></td>
       <td><span class="dbadge ${v.fog==="ON"?"on":"off"}">${v.fog??"--"}</span></td>
-      <td><span class="dbadge ${v.fan2==="ON"?"on":"off"}">${v.fan2??"--"}</span></td>
+      <td><span class="dbadge ${v.fanMain==="ON"?"on":"off"}">${v.fanMain??"--"}</span></td>
       <td><span class="dbadge ${v.fan3==="ON"?"on":"off"}">${v.fan3??"--"}</span></td>
       <td><span class="dbadge ${v.fan4==="ON"?"on":"off"}">${v.fan4??"--"}</span></td>
       <td class="tm">${v.servoPosition!=null?v.servoPosition+"°":"--"}</td>
@@ -1071,6 +1104,7 @@ window.toggleTheme=toggleTheme;
 applyTheme(localStorage.getItem('theme')==='dark');
 
 // ── Firebase load + listeners ──
+onProfileChange(); // ซ่อน/แสดง manual-inputs ตาม default profile
 get(ref(db,"incubator/control")).then(snap=>{
   const c=snap.val();
   if(c){
@@ -1092,6 +1126,11 @@ get(ref(db,"incubator/control")).then(snap=>{
     validate();
     if(c.system==="RUN"&&c.endTime) startCD(c.endTime);
     if(c.startTime) currentRunStartTime=c.startTime;
+    if(c.startStageIdx!=null){
+      currentStartStageIdx=parseInt(c.startStageIdx)||0;
+      if(c.system==="RUN"&&currentStartStageIdx>0&&currentProfileKey!=="custom")
+        selectStage(currentStartStageIdx);
+    }
     if(c.eggCount) { $('egg-count').value=c.eggCount; currentEggCount=c.eggCount; }
   }
   setupListeners();
@@ -1121,14 +1160,14 @@ onValue(ref(db,"incubator/current"),snap=>{
   } else if(ns==="RUN"&&d.endTime&&d.endTime!==endMs&&!blocked) startCD(d.endTime);
 
   // Task 2.1: อัปเดต stage card
-  if(ns==="RUN"&&currentRunStartTime>0) updateStageCard(currentRunStartTime,currentProfileKey);
+  if(ns==="RUN"&&currentRunStartTime>0) updateStageCard(currentRunStartTime,currentProfileKey,currentStartStageIdx);
 
   setMetric("ct","temp",d.temp);
   setMetric("ch","hum",d.humidity);
   setBadge("r1",d.relay?.fog);setBadge("r2",d.relay?.fanMain);
   setBadge("r3",d.relay?.fan3);setBadge("r4",d.relay?.fan4);setBadge("r5",d.relay?.heater);
-  $('sstatus').textContent=d.servo?.status??"--";
-  $('spos').textContent=d.servo?.position??"--";
+  const _ss=d.servo?.status??"--"; $('sstatus').textContent=_ss; $('sstatus').className='badge off';
+  const _sp=(d.servo?.position??'--')+'°'; $('spos').textContent=_sp; $('spos').className='badge off';
 
   // Task 2.2: แสดง Lockdown badge ใน servo card
   const turning=d.servo?.turning!==false;
