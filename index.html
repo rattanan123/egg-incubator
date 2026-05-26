@@ -201,23 +201,39 @@
     .run-rate{font-family:'Kanit',sans-serif;font-size:18px;font-weight:500}
     .run-rate.high{color:var(--gr)}.run-rate.mid{color:var(--am)}.run-rate.low{color:var(--rd)}
 
-    @media(max-width:768px){.mc-val{font-size:65px}}
+    @media(max-width:768px){
+      .mc-val{font-size:65px}
+      .mc-unit{font-size:30px}
+      .irow{grid-template-columns:1fr}
+    }
     @media(max-width:480px){
       body{padding:12px 10px 48px}.wrap{gap:12px}
-      .logo-text{font-size:20px}
-      .sys-label{font-size:20px}.ifield{font-size:24px}.ilabel{font-size:14px}
-      .btn-go,.btn-stop{font-size:19px;padding:13px 0;width:100%;min-width:unset}
+      .logo-text{font-size:18px}
+      .online-pill{font-size:14px;padding:5px 10px}
+      .theme-btn{font-size:14px;padding:5px 10px}
+      .sys-label{font-size:18px}.ifield{font-size:22px}.ilabel{font-size:13px}
+      .btn-go,.btn-stop{font-size:18px;padding:13px 0;width:100%;min-width:unset}
       .sys-btns{flex-direction:column}
-      .mc{padding:16px 14px}.mc-val{font-size:56px}.mc-label{font-size:14px}.mc-unit{font-size:26px}
+      .mc{padding:14px 12px}.mc-val{font-size:52px}.mc-label{font-size:13px}.mc-unit{font-size:24px}
+      .metrics-row{gap:10px}
       .bg2{grid-template-columns:1fr}
-      .rname{font-size:20px}.badge{font-size:16px}
+      .rname{font-size:18px}.badge{font-size:15px}
       thead th{font-size:12px;padding:0 8px 10px}
       tbody td{font-size:15px;padding:10px 8px}
-      .card-title{font-size:14px}
+      .card-title{font-size:13px}
       .lheader{flex-direction:row;align-items:center}
       .range-tabs{flex-wrap:wrap}
+      .stage-btns{flex-direction:column}
+      .stage-btn{min-width:unset}
+      #egg-stop-row{flex-direction:column;align-items:stretch}
+      #egg-stop-row .btn-stop{width:100%;text-align:center}
     }
-    @media(max-width:360px){.mc-val{font-size:48px}.ifield{font-size:20px}}
+    @media(max-width:360px){
+      .mc-val{font-size:42px}.mc-unit{font-size:20px}
+      .ifield{font-size:18px}
+      .metrics-row{grid-template-columns:1fr}
+      .logo-text{font-size:16px}
+    }
   </style>
 </head>
 <body>
@@ -278,8 +294,8 @@
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
       <div id="stage-countdown" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <div style="flex:1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:160px;">
             <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;letter-spacing:0.02em;">เวลาที่เหลือ</div>
             <div style="font-family:'Kanit',sans-serif;font-size:28px;font-weight:700;color:var(--gr);line-height:1.1;" id="cdtxt">--</div>
             <div style="font-size:13px;color:var(--mu);margin-top:5px;" id="cdend">--</div>
@@ -402,7 +418,7 @@
         </div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <div id="egg-stop-row" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
       <div class="ig" style="flex:1;">
         <div class="ilabel">จำนวนไข่ที่ใส่</div>
         <div class="iwrap"><input class="ifield" type="number" id="egg-count" placeholder="30" min="1" max="500" step="1"><span class="iunit">ฟอง</span></div>
