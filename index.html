@@ -295,7 +295,7 @@
           <div class="stage-name" id="stage-name">--</div>
           <div class="stage-day" id="stage-day-txt">วันที่ -- จาก -- วัน</div>
         </div>
-        <div id="lockdown-badge" class="stage-lock" style="display:none">🔒 ระยะปิดตู้ฟัก</div>
+        <div id="lockdown-badge" class="stage-lock" style="display:none">🔒 ช่วงเกิด</div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
       <div id="stage-countdown" class="cd-section">
@@ -571,9 +571,9 @@ const PROFILES = {
   chicken: {
     name:"ไก่", totalDays:21,
     stages:{
-      "0":{name:"ระยะฟัก (ต้น)",  dayStart:1,  dayEnd:10, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:1,  turning:true},
-      "1":{name:"ระยะฟัก (ปลาย)", dayStart:11, dayEnd:18, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:2,  turning:true},
-      "2":{name:"ระยะปิดตู้ฟัก",        dayStart:19, dayEnd:21, tempMin:36.8,tempMax:37.0,humMin:64,humMax:65,servoHoldHours:2,  turning:false}
+      "0":{name:"ช่วงฟัก (ต้น)",  dayStart:1,  dayEnd:10, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:1,  turning:true},
+      "1":{name:"ช่วงฟัก (ปลาย)", dayStart:11, dayEnd:18, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:2,  turning:true},
+      "2":{name:"ช่วงเกิด",        dayStart:19, dayEnd:21, tempMin:36.8,tempMax:37.0,humMin:64,humMax:65,servoHoldHours:2,  turning:false}
     },
     candlingDays:[10,18]
   },
