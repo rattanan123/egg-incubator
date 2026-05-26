@@ -246,7 +246,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">🥚</div>
-    <div><div class="logo-text">ตู้ฟักไข่r</div></div>
+    <div><div class="logo-text">ตู้ฟักไข่</div></div>
   </div>
   <div class="header-right">
     <div class="online-pill"><div class="dot" id="odot"></div><span id="otxt">connecting…</span></div>
@@ -573,7 +573,7 @@ const PROFILES = {
     stages:{
       "0":{name:"ระยะฟัก (ต้น)",  dayStart:1,  dayEnd:10, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:1,  turning:true},
       "1":{name:"ระยะฟัก (ปลาย)", dayStart:11, dayEnd:18, tempMin:36.5,tempMax:37.5,humMin:55,humMax:56,servoHoldHours:2,  turning:true},
-      "2":{name:"Lockdown",        dayStart:19, dayEnd:21, tempMin:36.8,tempMax:37.0,humMin:64,humMax:65,servoHoldHours:2,  turning:false}
+      "2":{name:"ระยะปิดตู้ฟัก",        dayStart:19, dayEnd:21, tempMin:36.8,tempMax:37.0,humMin:64,humMax:65,servoHoldHours:2,  turning:false}
     },
     candlingDays:[10,18]
   },
@@ -731,7 +731,7 @@ function showStageDetail(idx){
   $('sd-servo').textContent=s.turning?(s.servoHoldHours+' ชม.'):'–';
   const t=$('sd-turning');
   if(s.turning){t.textContent='✅ พลิกทุก '+s.servoHoldHours+' ชม.';t.style.color='var(--gr)';}
-  else{t.textContent='🔒 หยุดพลิก (Lockdown)';t.style.color='var(--am)';}
+  else{t.textContent='🔒 หยุดพลิก (ระยะปิดตู้ฟัก)';t.style.color='var(--am)';}
   $('stage-detail').classList.add('show');
 }
 
