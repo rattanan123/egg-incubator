@@ -418,7 +418,7 @@
       </div>
       <div class="irow" style="margin-bottom:8px;grid-template-columns:1fr;">
         <div class="ig">
-          <div class="ilabel">เวลาค้างเซอร์โว</div>
+          <div class="ilabel">เวลาค้างเซอร์โวมอเตอร์</div>
           <div class="iwrap"><input class="ifield" type="number" id="servo-hold" placeholder="1" min="0.1" max="24" step="0.5" oninput="validate()"><span class="iunit">ชม.</span></div>
           <div class="ihint" id="hservo">135°→ค้าง→90°→ค้าง→45°→ค้าง→วน</div>
         </div>
@@ -440,7 +440,7 @@
 
   <!-- Relay + Servo (รวม card เดียว) -->
   <div class="card">
-    <div class="card-title">สถานะอุปกรณ์ &amp; Servo</div>
+    <div class="card-title">สถานะอุปกรณ์ &amp; เซอร์โวมอเตอร์</div>
     <ul class="rlist">
       <li class="rrow"><span class="rname">ฮีตเตอร์</span><span class="badge off" id="r5">OFF</span></li>
       <li class="rrow"><span class="rname">หมอก</span><span class="badge off" id="r1">OFF</span></li>
@@ -448,9 +448,9 @@
       <li class="rrow"><span class="rname">พัดลมดูด</span><span class="badge off" id="r3">OFF</span></li>
       <li class="rrow"><span class="rname">พัดลมระบาย</span><span class="badge off" id="r4">OFF</span></li>
       <li class="rrow" style="border-top:1px solid var(--bd);margin-top:6px;padding-top:12px;">
-        <span class="rname">Servo สถานะ</span><span class="badge off" id="sstatus">--</span>
+        <span class="rname">สถานะเซอร์โวมอเตอร์</span><span class="badge off" id="sstatus">--</span>
       </li>
-      <li class="rrow"><span class="rname">Servo มุม</span><span class="badge off" id="spos">--°</span></li>
+      <li class="rrow"><span class="rname">มุมเซอร์โวมอเตอร์</span><span class="badge off" id="spos">--°</span></li>
       <li class="rrow" id="turning-row" style="display:none">
         <span class="rname">การพลิก</span>
         <span class="badge lock" id="turning-badge">🔒 หยุดพลิก</span>
@@ -521,7 +521,7 @@
         <th style="width:60px;">ฮีตเตอร์</th><th style="width:60px;">หมอก</th>
         <th style="width:65px;">พัดลมหมอก</th><th style="width:65px;">พัดลมดูด</th>
         <th style="width:70px;">พัดลมระบาย</th>
-        <th style="width:55px;">Servo°</th><th style="width:90px;">สถานะ</th>
+        <th style="width:55px;">เซอร์โวมอเตอร์</th><th style="width:90px;">สถานะ</th>
       </tr></thead>
       <tbody id="hlog-body"></tbody>
     </table>
@@ -774,7 +774,7 @@ function validate() {
   }
 
   const servoH=parseFloat(f.servoHold.value);
-  let ok6=vf(f.servoHold,'hservo',servoH,0.1,24,'ระยะเวลาค้างของ Servo ต่อตำแหน่ง');
+  let ok6=vf(f.servoHold,'hservo',servoH,0.1,24,'ระยะเวลาค้างของ เซอร์โวมอเตอร์ ต่อตำแหน่ง');
 
   const all=ok1&&ok2&&ok3&&ok4&&ok5&&ok6;
   $('bstart').disabled=!all;
@@ -954,7 +954,7 @@ async function startSys() {
 }
 
 async function stopSys() {
-  if(!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ Servo จะหยุด"))return;
+  if(!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ เซอร์โวมอเตอร์ จะหยุด"))return;
   stopGuardUntil=Date.now()+15000; lastAutoStageIdx=-1;
   await update(ref(db,"incubator/control"),{system:"STOP"});
   updateUI("STOP"); stopCD();
