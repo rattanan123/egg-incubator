@@ -66,12 +66,11 @@
     .cd-chip.today{background:rgba(217,119,6,0.12);border-color:rgba(217,119,6,0.4);color:var(--am);font-weight:500}
 
     .metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .mc{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--rs);padding:16px 18px 20px;position:relative;overflow:hidden}
-    .mc::before{content:'';position:absolute;inset:0;border-radius:var(--ra);pointer-events:none}
-    .mc.ok::before{box-shadow:inset 0 0 0 1.5px rgba(22,163,74,0.3)}
-    .mc.warn::before{box-shadow:inset 0 0 0 1.5px rgba(220,38,38,0.35)}
-    [data-theme="dark"] .mc.ok::before{box-shadow:inset 0 0 0 1.5px rgba(74,222,128,0.35)}
-    [data-theme="dark"] .mc.warn::before{box-shadow:inset 0 0 0 1.5px rgba(248,113,113,0.4)}
+    .mc{background:var(--sur2);border:1.5px solid var(--bd);border-radius:var(--rs);padding:16px 18px 20px;position:relative;overflow:hidden;transition:border-color 0.2s}
+    .mc.ok{border-color:rgba(22,163,74,0.5)}
+    .mc.warn{border-color:rgba(220,38,38,0.5)}
+    [data-theme="dark"] .mc.ok{border-color:rgba(74,222,128,0.5)}
+    [data-theme="dark"] .mc.warn{border-color:rgba(248,113,113,0.5)}
     .mc-label{font-size:16px;letter-spacing:0.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px;font-weight:500}
     .mc-val{font-family:'Kanit',sans-serif;font-size:80px;font-weight:400;line-height:1;letter-spacing:-0.03em}
     .mc-val.ok{color:var(--gr)}.mc-val.warn{color:var(--rd)}
@@ -131,21 +130,18 @@
     .btn-stop{font-family:'Kanit',sans-serif;font-size:20px;font-weight:500;padding:14px 28px;border-radius:99px;cursor:pointer;transition:all 0.2s;background:rgba(220,38,38,0.08);color:var(--rd);border:1px solid rgba(220,38,38,0.35);min-width:140px;text-align:center}
     .btn-stop:hover{background:rgba(220,38,38,0.15)}
 
-    .bg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--ra);padding:18px 16px}
-    .card-title{font-size:16px;letter-spacing:0.08em;color:var(--mu);text-transform:uppercase;margin-bottom:16px;font-weight:500}
+    .card-title{font-size:15px;letter-spacing:0.08em;color:var(--mu);text-transform:uppercase;margin-bottom:16px;font-weight:500}
     .rlist{list-style:none;display:flex;flex-direction:column;gap:2px}
     .rrow{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--rs)}
     .rrow:hover{background:var(--sur2)}
-    .rname{font-size:20px}
-    .badge{font-family:'Kanit',sans-serif;font-size:16px;font-weight:500;padding:5px 13px;border-radius:99px}
-    .badge.on{background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
-    .badge.off{background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
+    .rname{font-size:18px}
+    .badge{font-family:'Kanit',sans-serif;font-size:15px;font-weight:500;padding:5px 13px;border-radius:99px;background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
     .badge.lock{background:rgba(217,119,6,0.12);color:var(--am);border:1px solid rgba(217,119,6,0.4)}
     .svals{display:flex;flex-direction:column;gap:14px}
     .srow{display:flex;justify-content:space-between;align-items:center}
-    .skey{font-size:20px;color:var(--mu)}
-    .sval{font-family:'Kanit',sans-serif;font-size:22px}
+    .skey{font-size:18px;color:var(--mu)}
+    .sval{font-family:'Kanit',sans-serif;font-size:20px}
 
     /* Task 2.4: Chart range tabs */
     .cwrap{background:var(--sur);border:1px solid var(--bd);border-radius:var(--ra);padding:18px 16px}
@@ -173,9 +169,15 @@
     tbody td{font-size:17px;padding:12px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
     tbody tr:last-child td{border-bottom:none}
     .tm{font-family:'Kanit',sans-serif}.tmu{color:var(--mu)}
-    .dbadge{display:inline-flex;align-items:center;gap:5px;font-family:'Kanit',sans-serif;font-size:15px;padding:4px 11px;border-radius:99px}
-    .dbadge.on{background:var(--sur2);color:var(--mu)}.dbadge.off{background:var(--sur2);color:var(--mu)}
+    .dbadge{display:inline-flex;align-items:center;gap:5px;font-family:'Kanit',sans-serif;font-size:15px;padding:4px 11px;border-radius:99px;background:var(--sur2);color:var(--mu)}
     .dbadge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+
+    /* Utility */
+    .flex-baseline{display:flex;align-items:baseline;gap:6px}
+    .flex-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .sep{border-top:1px solid var(--bd);margin:14px 0}
+    .cd-section{display:none;padding-top:14px}
+    .cd-section.show{display:block}
 
     /* Dialogs */
     .dov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:100;align-items:center;justify-content:center;padding:16px}
@@ -216,10 +218,9 @@
       .sys-btns{flex-direction:column}
       .mc{padding:14px 12px}.mc-val{font-size:52px}.mc-label{font-size:13px}.mc-unit{font-size:24px}
       .metrics-row{gap:10px}
-      .bg2{grid-template-columns:1fr}
-      .rname{font-size:18px}.badge{font-size:15px}
-      thead th{font-size:12px;padding:0 8px 10px}
-      tbody td{font-size:15px;padding:10px 8px}
+      .rname{font-size:17px}.badge{font-size:14px}
+      thead th{font-size:12px;padding:0 6px 10px;letter-spacing:0}
+      tbody td{font-size:14px;padding:9px 6px}
       .card-title{font-size:13px}
       .lheader{flex-direction:row;align-items:center}
       .range-tabs{flex-wrap:wrap}
@@ -227,12 +228,16 @@
       .stage-btn{min-width:unset}
       #egg-stop-row{flex-direction:column;align-items:stretch}
       #egg-stop-row .btn-stop{width:100%;text-align:center}
+      #cdtxt,#cd-days-left{font-size:22px!important}
+      .skey{font-size:16px}.sval{font-size:18px}
     }
     @media(max-width:360px){
-      .mc-val{font-size:42px}.mc-unit{font-size:20px}
+      .mc-val{font-size:40px}.mc-unit{font-size:18px}
       .ifield{font-size:18px}
       .metrics-row{grid-template-columns:1fr}
       .logo-text{font-size:16px}
+      thead th{font-size:11px;padding:0 5px 8px}
+      tbody td{font-size:13px;padding:8px 5px}
     }
   </style>
 </head>
@@ -293,36 +298,37 @@
         <div id="lockdown-badge" class="stage-lock" style="display:none">🔒 Lockdown</div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-      <div id="stage-countdown" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div id="stage-countdown" class="cd-section">
+        <div class="sep"></div>
+        <div class="flex-between">
           <div style="flex:1;min-width:160px;">
-            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;letter-spacing:0.02em;">เวลาที่เหลือ</div>
-            <div style="font-family:'Kanit',sans-serif;font-size:28px;font-weight:700;color:var(--gr);line-height:1.1;" id="cdtxt">--</div>
-            <div style="font-size:13px;color:var(--mu);margin-top:5px;" id="cdend">--</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;">เวลาที่เหลือ</div>
+            <div class="tm" style="font-size:28px;font-weight:700;color:var(--gr);line-height:1.1;" id="cdtxt">--</div>
+            <div style="font-size:13px;color:var(--mu);margin-top:4px;" id="cdend">--</div>
           </div>
           <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;letter-spacing:0.02em;">อีกกี่วัน</div>
-            <div style="font-size:28px;font-weight:700;line-height:1.1;color:var(--tx);" id="cd-days-left">--</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:4px;font-weight:500;">อีกกี่วัน</div>
+            <div class="tm" style="font-size:28px;font-weight:700;line-height:1.1;color:var(--tx);" id="cd-days-left">--</div>
           </div>
         </div>
       </div>
-      <div class="candling-row" id="candling-row" style="margin-bottom:14px;"></div>
-      <div style="border-top:1px solid var(--bd);margin-bottom:14px;"></div>
+      <div class="candling-row" id="candling-row" style="margin-top:12px;"></div>
+      <div class="sep"></div>
     </div>
 
     <!-- Metrics always visible -->
-    <div style="font-size:14px;letter-spacing:0.06em;color:var(--mu);text-transform:uppercase;font-weight:500;margin-bottom:10px;">สภาพภายในตู้ตอนนี้</div>
+    <div class="card-title">สภาพภายในตู้ตอนนี้</div>
     <div class="metrics-row">
       <div class="mc" id="ct">
         <div class="mc-label">อุณหภูมิ</div>
-        <div style="display:flex;align-items:baseline;gap:6px;">
+        <div class="flex-baseline">
           <div class="mc-val" id="temp">--</div>
           <div class="mc-unit">°C</div>
         </div>
       </div>
       <div class="mc" id="ch">
         <div class="mc-label">ความชื้น</div>
-        <div style="display:flex;align-items:baseline;gap:6px;">
+        <div class="flex-baseline">
           <div class="mc-val" id="hum">--</div>
           <div class="mc-unit">%</div>
         </div>
@@ -574,19 +580,23 @@ const PROFILES = {
 };
 
 // ── Chart ──
+const _initDark=localStorage.getItem('theme')==='dark';
+const _gr=_initDark?'#4ade80':'#16a34a', _bl=_initDark?'#60a5fa':'#3b82f6';
+const _gridC=_initDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.06)';
+const _ttBg=_initDark?'#1e2023':'#ffffff', _ttBody=_initDark?'#f0f0ef':'#1a1a1a', _ttTitle=_initDark?'#6b6e74':'#6b7280';
 const hChart = new Chart(document.getElementById('chart').getContext('2d'), {
   type:'line',
   data:{ labels:[], datasets:[
-    { data:[], borderColor:'#16a34a', backgroundColor:'rgba(74,222,128,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#16a34a', tension:0.3, fill:true, yAxisID:'yT' },
-    { data:[], borderColor:'#3b82f6', backgroundColor:'rgba(96,165,250,0.06)',  borderWidth:2, pointRadius:3, pointBackgroundColor:'#3b82f6', tension:0.3, fill:true, yAxisID:'yH' }
+    { data:[], borderColor:_gr, backgroundColor:_initDark?'rgba(74,222,128,0.06)':'rgba(22,163,74,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:_gr, tension:0.3, fill:true, yAxisID:'yT' },
+    { data:[], borderColor:_bl, backgroundColor:_initDark?'rgba(96,165,250,0.06)':'rgba(59,130,246,0.06)',  borderWidth:2, pointRadius:3, pointBackgroundColor:_bl, tension:0.3, fill:true, yAxisID:'yH' }
   ]},
   options:{
     responsive:true, interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false}, tooltip:{backgroundColor:'#ffffff',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#6b7280',bodyColor:'#1a1a1a',padding:10}},
+    plugins:{legend:{display:false}, tooltip:{backgroundColor:_ttBg,borderColor:'rgba(128,128,128,0.15)',borderWidth:1,titleColor:_ttTitle,bodyColor:_ttBody,padding:10}},
     scales:{
-      x:{ticks:{color:'#6b6e74',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{color:'rgba(0,0,0,0.06)'}},
-      yT:{position:'left',  min:30,max:45,ticks:{color:'#16a34a',font:{size:10},callback:v=>v+'°'},grid:{color:'rgba(0,0,0,0.06)'}},
-      yH:{position:'right', min:40,max:80,ticks:{color:'#3b82f6',font:{size:10},callback:v=>v+'%'},grid:{display:false}}
+      x:{ticks:{color:'#6b6e74',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{color:_gridC}},
+      yT:{position:'left',  min:30,max:45,ticks:{color:_gr,font:{size:10},callback:v=>v+'°'},grid:{color:_gridC}},
+      yH:{position:'right', min:40,max:80,ticks:{color:_bl,font:{size:10},callback:v=>v+'%'},grid:{display:false}}
     }
   }
 });
@@ -644,6 +654,7 @@ let currentStartStageIdx=0;
 let currentEggCount=0;
 let currentRunEndMs=0;
 let isLockdownStage=false;
+let lastAutoStageIdx=-1;
 let allHourlyLogs={};  // cache สำหรับ Export CSV
 
 function inputs() {
@@ -704,9 +715,9 @@ function fillStageInputs(idx){
   $('hmin').value=s.humMin;
   $('hmax').value=s.humMax;
   $('servo-hold').value=s.servoHoldHours;
-  // จำนวนวันของช่วงนี้
-  const stageDays=s.dayEnd-s.dayStart+1;
-  $('dur-days').value=stageDays;
+  // วันที่เหลือจาก stage นี้จนครบรอบ
+  const remainingDays=p.totalDays-s.dayStart+1;
+  $('dur-days').value=remainingDays;
   $('dur-hrs').value='';
   $('dur-min').value='';
   validate();
@@ -804,7 +815,7 @@ function startCD(et){
   endMs=et; currentRunEndMs=et;
   if(cdTimer)clearInterval(cdTimer);
   cdTimer=setInterval(tickCD,1000); tickCD();
-  $('stage-countdown').style.display='';
+  $('stage-countdown').classList.add('show');
 }
 function tickCD(){
   const diff=endMs-Date.now();
@@ -826,7 +837,7 @@ function stopCD(){
   if(cdTimer)clearInterval(cdTimer);
   $('cdtxt').textContent='--';$('cdtxt').style.color='var(--gr)';
   $('cdend').textContent='--';$('cd-days-left').textContent='--';
-  endMs=0; $('stage-countdown').style.display='none';
+  endMs=0; $('stage-countdown').classList.remove('show');
 }
 
 // ── Task 2.1: Stage progress ──
@@ -851,13 +862,23 @@ function updateStageCard(startTimeMs, profile, startStageIdx=0) {
   $('lockdown-badge').style.display=isLockdown?'':'none';
   isLockdownStage=isLockdown;
 
-  // ไฮไลต์ปุ่ม stage ที่ตรงกับวันปัจจุบัน
+  // ไฮไลต์ปุ่ม stage ที่ตรงกับวันปัจจุบัน + auto phase transition
   const stageEntries=Object.values(p.stages);
   let curIdx=0;
-  stageEntries.forEach((s,i)=>{if(currentDay>=s.dayStart&&currentDay<=s.dayEnd)curIdx=i;});
+  let curStage=null;
+  stageEntries.forEach((s,i)=>{if(currentDay>=s.dayStart&&currentDay<=s.dayEnd){curIdx=i;curStage=s;}});
   document.querySelectorAll('.stage-btn').forEach((b,i)=>{
     b.classList.toggle('cur-stage',i===curIdx);
   });
+  // auto push ค่าใหม่ลง Firebase เมื่อ stage เปลี่ยน
+  if(curStage&&curIdx!==lastAutoStageIdx){
+    lastAutoStageIdx=curIdx;
+    update(ref(db,"incubator/control"),{
+      tempMin:curStage.tempMin, tempMax:curStage.tempMax,
+      humMin:curStage.humMin,  humMax:curStage.humMax,
+      servoHoldHours:curStage.servoHoldHours
+    }).catch(()=>{});
+  }
 
   // Task 3.2: Candling chips
   const row=$('candling-row');
@@ -934,7 +955,7 @@ async function startSys() {
 
 async function stopSys() {
   if(!confirm("หยุดระบบทั้งหมด?\nRelay ทุกตัวจะปิด และ Servo จะหยุด"))return;
-  stopGuardUntil=Date.now()+15000;
+  stopGuardUntil=Date.now()+15000; lastAutoStageIdx=-1;
   await update(ref(db,"incubator/control"),{system:"STOP"});
   updateUI("STOP"); stopCD();
   await set(ref(db,"incubator/systemLogs/"+Date.now()),{action:"STOP",timestamp:Date.now()});
@@ -1109,6 +1130,10 @@ function applyTheme(dark){
   hChart.data.datasets[1].pointBackgroundColor=bl;
   hChart.options.scales.yT.ticks.color=gr;hChart.options.scales.yH.ticks.color=bl;
   hChart.options.scales.x.grid.color=gridC;hChart.options.scales.yT.grid.color=gridC;
+  const ttBg=dark?'#1e2023':'#ffffff', ttBody=dark?'#f0f0ef':'#1a1a1a', ttTitle=dark?'#6b6e74':'#6b7280';
+  hChart.options.plugins.tooltip.backgroundColor=ttBg;
+  hChart.options.plugins.tooltip.titleColor=ttTitle;
+  hChart.options.plugins.tooltip.bodyColor=ttBody;
   hChart.update('none');
 }
 function toggleTheme(){
@@ -1182,8 +1207,8 @@ onValue(ref(db,"incubator/current"),snap=>{
   setMetric("ch","hum",d.humidity);
   setBadge("r1",d.relay?.fog);setBadge("r2",d.relay?.fanMain);
   setBadge("r3",d.relay?.fan3);setBadge("r4",d.relay?.fan4);setBadge("r5",d.relay?.heater);
-  const _ss=d.servo?.status??"--"; $('sstatus').textContent=_ss; $('sstatus').className='badge off';
-  const _sp=(d.servo?.position??'--')+'°'; $('spos').textContent=_sp; $('spos').className='badge off';
+  $('sstatus').textContent=d.servo?.status??"--"; $('sstatus').className='badge';
+  $('spos').textContent=(d.servo?.position??'--')+'°'; $('spos').className='badge';
 
   // Task 2.2: แสดง Lockdown badge ใน servo card
   const turning=d.servo?.turning!==false;
