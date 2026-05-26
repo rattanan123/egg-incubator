@@ -731,7 +731,7 @@ function showStageDetail(idx){
   $('sd-servo').textContent=s.turning?(s.servoHoldHours+' ชม.'):'–';
   const t=$('sd-turning');
   if(s.turning){t.textContent='✅ พลิกทุก '+s.servoHoldHours+' ชม.';t.style.color='var(--gr)';}
-  else{t.textContent='🔒 หยุดพลิก (ระยะปิดตู้ฟัก)';t.style.color='var(--am)';}
+  else{t.textContent='🔒 หยุดพลิก (ระยะเกิด)';t.style.color='var(--am)';}
   $('stage-detail').classList.add('show');
 }
 
