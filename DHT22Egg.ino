@@ -87,7 +87,7 @@ bool fogOn = false, fanMainOn = false, fan3On = true, fan4On = false, heaterOn =
 String systemState = "STOP";
 int shtErrorCount = 0;
 const int SHT_MAX_ERROR = 5;
-bool sensorFailed = false, wasRunning = false;
+bool sensorFailed = false, wasRunning = false, sensorWasFailed = false;
 
 // ===== LINE =====
 unsigned long lineAlertTimer = 0;
@@ -154,8 +154,9 @@ void relayWrite(int pin, bool on) { digitalWrite(pin, on ? LOW : HIGH); }   // r
 void ssrWrite(int pin, bool on)   { digitalWrite(pin, on ? HIGH : LOW); }  // SSR (active HIGH)
 
 void allRelaysOff() {
-  relayWrite(RELAY1, false); relayWrite(RELAY2, false); relayWrite(RELAY3, false);
-  relayWrite(RELAY4, false); relayWrite(RELAY5, false);
+  relayWrite(RELAY1, false); relayWrite(RELAY2, false);
+  relayWrite(RELAY3, false); relayWrite(RELAY4, false);
+  ssrWrite(RELAY5, false);   // ฮีตเตอร์ SSR — active HIGH ต้องใช้ ssrWrite
   fogOn = fanMainOn = fan3On = fan4On = heaterOn = false;
 }
 
@@ -407,9 +408,11 @@ void sendHourlyLog() {
   FirebaseJson json;
   json.set("temp",          latestTemp);
   json.set("humidity",      latestHum);
-  json.set("fog",           fogOn    ? "ON":"OFF");
-  json.set("fan3",          fan3On   ? "ON":"OFF");
-  json.set("heater",        heaterOn ? "ON":"OFF");
+  json.set("fog",           fogOn     ? "ON":"OFF");
+  json.set("fanMain",       fanMainOn ? "ON":"OFF");
+  json.set("fan3",          fan3On    ? "ON":"OFF");
+  json.set("fan4",          fan4On    ? "ON":"OFF");
+  json.set("heater",        heaterOn  ? "ON":"OFF");
   xSemaphoreTake(servoStatusMutex, pdMS_TO_TICKS(50));
   String _ss = servoStatus;
   xSemaphoreGive(servoStatusMutex);
@@ -553,14 +556,24 @@ void loop() {
     float t = tev.temperature, h = hev.relative_humidity;
     if (ok && !isnan(t) && !isnan(h) && t > 0 && t < 60 && h > 0 && h <= 100) {
       latestTemp = t; latestHum = h;
-      shtErrorCount = 0; sensorFailed = false;
+      shtErrorCount = 0;
+      if (sensorFailed) {
+        sensorFailed    = false;
+        sensorWasFailed = false;
+        sendLineForce("เซ็นเซอร์กลับมาทำงานปกติแล้ว ✅\n");
+      }
       if (thresholdReady) {
         controlSystem(t, h);
         String alert = "";
-        if (t > 38.0f)   alert += "อุณหภูมิสูงเกิน: " + String(t,1) + "C\n";
-        if (t < 36.0f)   alert += "อุณหภูมิต่ำเกิน: " + String(t,1) + "C\n";
-        if (h > 60.5f)   alert += "ความชื้นสูงเกิน: " + String(h,1) + "%\n";
-        if (h < 49.5f)   alert += "ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
+        if (t > 38.0f) alert += "อุณหภูมิสูงเกิน: " + String(t,1) + "C\n";
+        if (t < 36.0f) alert += "อุณหภูมิต่ำเกิน: " + String(t,1) + "C\n";
+        if (!turningEnabled) {
+          if (h > 71.0f) alert += "ความชื้นสูงเกิน (Lockdown): " + String(h,1) + "%\n";
+          if (h < 59.0f) alert += "ความชื้นต่ำเกิน (Lockdown): " + String(h,1) + "%\n";
+        } else {
+          if (h > 61.0f) alert += "ความชื้นสูงเกิน: " + String(h,1) + "%\n";
+          if (h < 49.0f) alert += "ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
+        }
         if (alert != "") sendLineAlert(alert);
       } else {
         Serial.println("[WAIT] รอค่าจาก Dashboard...");
@@ -573,15 +586,16 @@ void loop() {
     } else {
       shtErrorCount++;
       if (shtErrorCount >= SHT_MAX_ERROR && !sensorFailed) {
-        sensorFailed = true;
+        sensorFailed    = true;
+        sensorWasFailed = true;
         allRelaysOff();
         Serial.println("[CRITICAL] Sensor fail");
-        sendLineAlert("เซ็นเซอร์ขัดข้อง Relay ปิดทั้งหมดแล้ว\n");
+        sendLineForce("เซ็นเซอร์ขัดข้อง ⚠️\nRelay ปิดทั้งหมดแล้ว\n");
       }
     }
   }
 
-  if (now - firebaseTimer >= FIREBASE_INTERVAL && !lineSending) {
+  if (now - firebaseTimer >= FIREBASE_INTERVAL) {
     firebaseTimer = now;
     sendCurrentData();
   }
