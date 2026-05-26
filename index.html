@@ -138,6 +138,11 @@
     .rname{font-size:18px}
     .badge{font-family:'Kanit',sans-serif;font-size:15px;font-weight:500;padding:5px 13px;border-radius:99px;background:var(--sur2);color:var(--mu);border:1px solid var(--bd)}
     .badge.lock{background:rgba(217,119,6,0.12);color:var(--am);border:1px solid rgba(217,119,6,0.4)}
+    .badge.on{background:var(--gr-bg);color:var(--gr);border-color:rgba(22,163,74,0.4)}
+    .badge.off{background:var(--sur2);color:var(--mu);border-color:var(--bd)}
+    [data-theme="dark"] .badge.on{border-color:rgba(74,222,128,0.4)}
+    .dbadge.on{background:var(--gr-bg);color:var(--gr)}
+    .dbadge.off{background:var(--sur2);color:var(--mu)}
     .svals{display:flex;flex-direction:column;gap:14px}
     .srow{display:flex;justify-content:space-between;align-items:center}
     .skey{font-size:18px;color:var(--mu)}
@@ -521,7 +526,7 @@
         <th style="width:60px;">ฮีตเตอร์</th><th style="width:60px;">หมอก</th>
         <th style="width:65px;">พัดลมหมอก</th><th style="width:65px;">พัดลมดูด</th>
         <th style="width:70px;">พัดลมระบาย</th>
-        <th style="width:55px;">เซอร์โวมอเตอร์</th><th style="width:90px;">สถานะ</th>
+        <th style="width:55px;">เซอร์โว</th><th style="width:90px;">สถานะ</th>
       </tr></thead>
       <tbody id="hlog-body"></tbody>
     </table>
