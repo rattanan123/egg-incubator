@@ -88,7 +88,7 @@ bool fogOn = false, fanMainOn = false, fan3On = true, fan4On = false, heaterOn =
 String systemState = "STOP";
 int shtErrorCount = 0;
 const int SHT_MAX_ERROR = 5;
-bool sensorFailed = false, wasRunning = false, sensorWasFailed = false;
+bool sensorFailed = false, wasRunning = false;
 
 // ===== LINE =====
 unsigned long lineAlertTimer = 0;
@@ -265,7 +265,6 @@ void loadProfileStage(const String& profileName, int currentDay) {
   }
   FirebaseJson& stages = fbdoProf.jsonObject();
   size_t count = stages.iteratorBegin();
-  Serial.printf("[Profile] stages count=%d day=%d\n", (int)count, currentDay);
   for (size_t i = 0; i < count; i++) {
     int type = 0; String key, val;
     stages.iteratorGet(i, type, key, val);
@@ -275,7 +274,6 @@ void loadProfileStage(const String& profileName, int currentDay) {
     int ds = 0, de = 999;
     if (stage.get(r, "dayStart") && r.success) ds = r.intValue;
     if (stage.get(r, "dayEnd")   && r.success) de = r.intValue;
-    Serial.printf("[Profile] stage[%s] ds=%d de=%d type=%d\n", key.c_str(), ds, de, type);
     if (currentDay < ds || currentDay > de) continue;
 
     bool prevTurning = turningEnabled;
@@ -355,14 +353,12 @@ void readControlFromFirebase() {
   }
 
   bool useProfile = (activeProfileName != "" && activeProfileName != "custom");
-  Serial.printf("[DBG] profile='%s' useProfile=%d startTimeMs=%lld offset=%d\n",
-    activeProfileName.c_str(), useProfile, startTimeMs, startDayOffset);
 
   if (useProfile && startTimeMs > 0) {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
-      int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset;
-      Serial.printf("[DBG] currentDay=%d lastProfileDay=%d thresholdReady=%d\n", currentDay, lastProfileDay, thresholdReady);
+      // clamp currentDay ≥ 1 (ป้องกัน startTimeMs ในอนาคต)
+      int currentDay = max(1, (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset);
       if (currentDay != lastProfileDay || !thresholdReady) {
         lastProfileDay = currentDay;
         loadProfileStage(activeProfileName, currentDay);
@@ -379,10 +375,8 @@ void readControlFromFirebase() {
     if (ok1&&ok2&&ok3&&ok4) thresholdReady = true;
     if (json.get(r,"servoHoldHours")&&r.success&&r.floatValue>=0.1f&&r.floatValue<=24.0f)
       servoHoldMs = (unsigned long)(r.floatValue * 3600000.0f);
-    Serial.printf("[DBG] fallback ok=%d%d%d%d thresholdReady=%d\n", ok1,ok2,ok3,ok4,thresholdReady);
-    // turningEnabled ใช้จาก "turning" field ที่อ่านไปแล้ว (ไม่ hardcode true)
+    // turningEnabled ใช้จาก "turning" field ที่อ่านไปแล้ว
   }
-  //            ให้ค่าจาก "turning" field ที่อ่านไปแล้วทำงาน
 }
 
 // ===== Send Current =====
@@ -583,8 +577,7 @@ void loop() {
       latestTemp = t; latestHum = h;
       shtErrorCount = 0;
       if (sensorFailed) {
-        sensorFailed    = false;
-        sensorWasFailed = false;
+        sensorFailed = false;
         sendLineForce("เซ็นเซอร์กลับมาทำงานปกติแล้ว ✅\n");
       }
       if (thresholdReady) {
@@ -613,8 +606,7 @@ void loop() {
     } else {
       shtErrorCount++;
       if (shtErrorCount >= SHT_MAX_ERROR && !sensorFailed) {
-        sensorFailed    = true;
-        sensorWasFailed = true;
+        sensorFailed = true;
         allRelaysOff();
         Serial.println("[CRITICAL] Sensor fail");
         sendLineForce("เซ็นเซอร์ขัดข้อง ⚠️\nRelay ปิดทั้งหมดแล้ว\n");
@@ -650,8 +642,18 @@ void loop() {
         alertedDone = true;
         systemState = "STOP";
         allRelaysOff(); resetServo();
-        Firebase.RTDB.setString(&fbdo, "/incubator/control/system", "STOP");
-        sendLineAlert("ตู้ฟักไข่ครบกำหนดแล้ว หยุดทำงานเรียบร้อย\n");
+        // อัปเดต control + run record
+        FirebaseJson doneJson;
+        doneJson.set("system", "STOP");
+        Firebase.RTDB.updateNode(&fbdo, "/incubator/control", &doneJson);
+        if (startTimeMs > 0) {
+          FirebaseJson runJson;
+          runJson.set("status",    "completed");
+          runJson.set("endTime",   (double)nowMs);
+          Firebase.RTDB.updateNode(&fbdoLog,
+            ("/incubator/runs/" + String((long long)startTimeMs)).c_str(), &runJson);
+        }
+        sendLineAlert("🥚 ตู้ฟักไข่ครบกำหนดแล้ว หยุดทำงานเรียบร้อย\n");
         Serial.println("[DONE]");
       }
     }

@@ -943,9 +943,10 @@ function updateStageCard(startTimeMs, profile, startStageIdx=0) {
   if(curStage&&curIdx!==lastAutoStageIdx){
     lastAutoStageIdx=curIdx;
     update(ref(db,"incubator/control"),{
-      tempMin:curStage.tempMin, tempMax:curStage.tempMax,
-      humMin:curStage.humMin,  humMax:curStage.humMax,
-      servoHoldHours:curStage.servoHoldHours
+      tempMin:curStage.tempMin,   tempMax:curStage.tempMax,
+      humMin:curStage.humMin,     humMax:curStage.humMax,
+      servoHoldHours:curStage.servoHoldHours,
+      turning:curStage.turning !== false   // ← push turning เมื่อ stage เปลี่ยน
     }).catch(()=>{});
   }
 
