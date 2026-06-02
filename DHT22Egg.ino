@@ -61,6 +61,7 @@ bool thresholdReady = false;
 // ===== Incubation =====
 long long endTimeMs = 0;
 long long startTimeMs = 0;
+int startDayOffset = 0;  // offset จาก stage ที่เริ่ม เช่น เริ่ม stage 3 = 18
 bool alertedOneDay = false, alertedThirtyMin = false, alertedDone = false;
 
 // ===== Profile (Task 2.1) =====
@@ -93,6 +94,7 @@ bool sensorFailed = false, wasRunning = false, sensorWasFailed = false;
 unsigned long lineAlertTimer = 0;
 const unsigned long LINE_COOLDOWN = 600000UL;
 volatile bool lineSending = false;
+unsigned long lineSendingStartMs = 0;  // timeout safety
 
 // ─── forward declarations ───
 void handleServo();
@@ -136,6 +138,7 @@ void sendLineAlert(String message) {
   full.replace("\\", "\\\\"); full.replace("\"", "\\\""); full.replace("\n", "\\n");
   String* copy = new String(full);
   lineSending = true;
+  lineSendingStartMs = millis();
   xTaskCreatePinnedToCore(lineTask, "lineTask", 16384, copy, 1, NULL, 0);
 }
 
@@ -334,7 +337,9 @@ void readControlFromFirebase() {
   if (useProfile && startTimeMs > 0) {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
-      int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1;
+      // บวก startDayOffset เพื่อให้ตรงกับ stage ที่เลือกเริ่ม
+      // เช่น เริ่มที่ stage 3 (dayStart=19) → offset=18 → วันที่ 1 = day 19
+      int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset;
       if (currentDay != lastProfileDay) {
         lastProfileDay = currentDay;
         loadProfileStage(activeProfileName, currentDay);
@@ -354,7 +359,8 @@ void readControlFromFirebase() {
     turningEnabled = true;
   }
 
-  if (json.get(r,"endTime")&&r.success)   endTimeMs  = (long long)r.doubleValue;
+  if (json.get(r,"endTime")&&r.success)       endTimeMs     = (long long)r.doubleValue;
+  if (json.get(r,"startDayOffset")&&r.success) startDayOffset = r.intValue;
   if (json.get(r,"startTime")&&r.success) {
     static long long lastST = 0;
     long long st = (long long)r.doubleValue;
@@ -369,7 +375,7 @@ void readControlFromFirebase() {
 
 // ===== Send Current =====
 void sendCurrentData() {
-  if (!Firebase.ready() || lineSending) return;
+  if (!Firebase.ready()) return;
   FirebaseJson json;
   json.set("temp",          latestTemp);
   json.set("humidity",      latestHum);
@@ -520,6 +526,13 @@ void loop() {
     readControlFromFirebase();
   }
 
+  // ── lineSending safety timeout 30s (ป้องกัน stuck) ──
+  if (lineSending && lineSendingStartMs > 0 && (now - lineSendingStartMs) > 30000UL) {
+    lineSending = false;
+    lineSendingStartMs = 0;
+    Serial.println("[LINE] timeout reset");
+  }
+
   static uint8_t stopCount = 0;
   if (systemState == "STOP") {
     stopCount++;
@@ -564,15 +577,17 @@ void loop() {
       }
       if (thresholdReady) {
         controlSystem(t, h);
+
+        // ── LINE alert: threshold คงที่ (ไม่ขึ้นกับ profile) ──
         String alert = "";
-        if (t > 38.0f) alert += "อุณหภูมิสูงเกิน: " + String(t,1) + "C\n";
-        if (t < 36.0f) alert += "อุณหภูมิต่ำเกิน: " + String(t,1) + "C\n";
+        if (t > 38.0f) alert += "🌡️ อุณหภูมิสูงเกิน: " + String(t,1) + "°C\n";
+        if (t < 36.0f) alert += "🌡️ อุณหภูมิต่ำเกิน: " + String(t,1) + "°C\n";
         if (!turningEnabled) {
-          if (h > 71.0f) alert += "ความชื้นสูงเกิน (Lockdown): " + String(h,1) + "%\n";
-          if (h < 59.0f) alert += "ความชื้นต่ำเกิน (Lockdown): " + String(h,1) + "%\n";
+          if (h > 71.0f) alert += "💧 ความชื้นสูงเกิน (Lockdown): " + String(h,1) + "%\n";
+          if (h < 59.0f) alert += "💧 ความชื้นต่ำเกิน (Lockdown): " + String(h,1) + "%\n";
         } else {
-          if (h > 61.0f) alert += "ความชื้นสูงเกิน: " + String(h,1) + "%\n";
-          if (h < 49.0f) alert += "ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
+          if (h > 61.0f) alert += "💧 ความชื้นสูงเกิน: " + String(h,1) + "%\n";
+          if (h < 49.0f) alert += "💧 ความชื้นต่ำเกิน: " + String(h,1) + "%\n";
         }
         if (alert != "") sendLineAlert(alert);
       } else {
