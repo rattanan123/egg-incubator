@@ -192,7 +192,9 @@ void handleServo() {
   }
   if (servoStartRequest) {
     servoStartRequest = false;
-    servoState = turningEnabled ? 0 : 8;
+    // turningEnabled=true  → เริ่มที่ state 6 (ไป 90 → ค้าง → ไป 135 → วนซ้ำ)
+    // turningEnabled=false → เริ่มที่ state 8 (ไป 90 → STOPPED)
+    servoState = turningEnabled ? 6 : 8;
     lastState = -1;
     return;
   }
@@ -206,14 +208,14 @@ void handleServo() {
     lastState = servoState;
     const char* s = "";
     switch (servoState) {
-      case 0: s = "Move to 135";   break;
-      case 1: s = "Hold 135";      break;
-      case 2: s = "Move to 90";    break;
-      case 3: s = "Hold 90 (1/2)"; break;
-      case 4: s = "Move to 45";    break;
-      case 5: s = "Hold 45";       break;
-      case 6: s = "Move to 90";    break;
-      case 7: s = "Hold 90 (2/2)"; break;
+      case 0: s = "Move to 135";    break;
+      case 1: s = "Hold 135";       break;
+      case 2: s = "Move to 90";     break;
+      case 3: s = "Hold 90 (mid)";  break;
+      case 4: s = "Move to 45";     break;
+      case 5: s = "Hold 45";        break;
+      case 6: s = "Move to 90";     break;
+      case 7: s = "Hold 90 (start)";break;
       case 8: s = "Return to 90";  break;
       case 9: s = "STOPPED";       break;
     }
