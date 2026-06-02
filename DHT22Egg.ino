@@ -351,19 +351,22 @@ void readControlFromFirebase() {
   }
 
   bool useProfile = (activeProfileName != "" && activeProfileName != "custom");
+  Serial.printf("[DBG] profile='%s' useProfile=%d startTimeMs=%lld offset=%d\n",
+    activeProfileName.c_str(), useProfile, startTimeMs, startDayOffset);
+
   if (useProfile && startTimeMs > 0) {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
-      // บวก startDayOffset เพื่อให้ตรงกับ stage ที่เลือกเริ่ม
       int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset;
+      Serial.printf("[DBG] currentDay=%d lastProfileDay=%d\n", currentDay, lastProfileDay);
       if (currentDay != lastProfileDay) {
         lastProfileDay = currentDay;
         loadProfileStage(activeProfileName, currentDay);
         checkCandlingAlert(currentDay);
       }
     }
-  } else if (!useProfile) {
-    // ไม่มี profile (custom) — อ่านค่าตรงจาก control
+  } else {
+    // custom หรือ startTimeMs=0 — อ่านค่าตรงจาก control
     bool ok1=false, ok2=false, ok3=false, ok4=false;
     if (json.get(r,"tempMin")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { heater_off_temp=r.floatValue; ok1=true; }
     if (json.get(r,"tempMax")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { fan_temp=r.floatValue;        ok2=true; }
@@ -372,9 +375,9 @@ void readControlFromFirebase() {
     if (ok1&&ok2&&ok3&&ok4) thresholdReady = true;
     if (json.get(r,"servoHoldHours")&&r.success&&r.floatValue>=0.1f&&r.floatValue<=24.0f)
       servoHoldMs = (unsigned long)(r.floatValue * 3600000.0f);
-    turningEnabled = true;
+    Serial.printf("[DBG] fallback ok=%d%d%d%d thresholdReady=%d\n", ok1,ok2,ok3,ok4,thresholdReady);
+    // turningEnabled ใช้จาก "turning" field ที่อ่านไปแล้ว (ไม่ hardcode true)
   }
-  // หมายเหตุ: else ตรงกลาง (useProfile=true แต่ startTimeMs=0) ไม่แตะ turningEnabled
   //            ให้ค่าจาก "turning" field ที่อ่านไปแล้วทำงาน
 }
 
