@@ -263,6 +263,7 @@ void loadProfileStage(const String& profileName, int currentDay) {
   }
   FirebaseJson& stages = fbdoProf.jsonObject();
   size_t count = stages.iteratorBegin();
+  Serial.printf("[Profile] stages count=%d day=%d\n", (int)count, currentDay);
   for (size_t i = 0; i < count; i++) {
     int type = 0; String key, val;
     stages.iteratorGet(i, type, key, val);
@@ -272,6 +273,7 @@ void loadProfileStage(const String& profileName, int currentDay) {
     int ds = 0, de = 999;
     if (stage.get(r, "dayStart") && r.success) ds = r.intValue;
     if (stage.get(r, "dayEnd")   && r.success) de = r.intValue;
+    Serial.printf("[Profile] stage[%s] ds=%d de=%d type=%d\n", key.c_str(), ds, de, type);
     if (currentDay < ds || currentDay > de) continue;
 
     bool prevTurning = turningEnabled;
@@ -358,8 +360,8 @@ void readControlFromFirebase() {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
       int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset;
-      Serial.printf("[DBG] currentDay=%d lastProfileDay=%d\n", currentDay, lastProfileDay);
-      if (currentDay != lastProfileDay) {
+      Serial.printf("[DBG] currentDay=%d lastProfileDay=%d thresholdReady=%d\n", currentDay, lastProfileDay, thresholdReady);
+      if (currentDay != lastProfileDay || !thresholdReady) {
         lastProfileDay = currentDay;
         loadProfileStage(activeProfileName, currentDay);
         checkCandlingAlert(currentDay);
