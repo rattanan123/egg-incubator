@@ -324,6 +324,9 @@ void readControlFromFirebase() {
 
   if (json.get(r, "system") && r.success) systemState = r.stringValue;
 
+  // อ่าน turning จาก control (เว็บส่งมาตอนเริ่ม เพื่อให้ servo ถูกต้องทันที)
+  if (json.get(r, "turning") && r.success) turningEnabled = r.boolValue;
+
   // ตรวจ active profile
   String newProfile = "";
   if (json.get(r, "activeProfile") && r.success) newProfile = r.stringValue;

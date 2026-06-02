@@ -995,11 +995,14 @@ async function startSys() {
   const stageList = Object.values(isCustom ? {} : PROFILES[currentProfileKey].stages);
   const startDayOffset = (stageList[selectedStageIdx]?.dayStart ?? 1) - 1;
 
+  // turning=false (Lockdown) ถ้าเลือก stage ที่ turning:false
+  const selTurning = isCustom ? true : (stageList[selectedStageIdx]?.turning !== false);
+
   await update(ref(db,"incubator/control"),{
     system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax,
     durationMs, startTime:st, endTime:et, servoHoldHours:servoH,
     activeProfile:currentProfileKey, startStageIdx:selectedStageIdx, eggCount,
-    startDayOffset
+    startDayOffset, turning:selTurning
   });
   updateUI("RUN"); startCD(et);
 
