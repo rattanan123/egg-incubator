@@ -257,21 +257,18 @@ void controlSystem(float t, float h) {
 }
 
 // ===== Task 2.1: โหลด stage จาก profile ตาม currentDay =====
+// อ่านทีละ stage โดยตรงจาก path เพื่อหลีกเลี่ยงปัญหา JSON iterator
 void loadProfileStage(const String& profileName, int currentDay) {
-  String path = "/incubator/profiles/" + profileName + "/stages";
-  if (!Firebase.RTDB.getJSON(&fbdoProf, path.c_str())) {
-    Serial.println("[Profile] read fail: " + fbdoProf.errorReason());
-    return;
-  }
-  FirebaseJson& stages = fbdoProf.jsonObject();
-  size_t count = stages.iteratorBegin();
-  for (size_t i = 0; i < count; i++) {
-    int type = 0; String key, val;
-    stages.iteratorGet(i, type, key, val);
-    FirebaseJson stage;
-    stage.setJsonData(val);
+  String basePath = "/incubator/profiles/" + profileName + "/stages/";
+  bool found = false;
+
+  for (int idx = 0; idx <= 9 && !found; idx++) {
+    String path = basePath + String(idx);
+    if (!Firebase.RTDB.getJSON(&fbdoProf, path.c_str())) break;
+
+    FirebaseJson& stage = fbdoProf.jsonObject();
     FirebaseJsonData r;
-    int ds = 0, de = 999;
+    int ds = 1, de = 999;
     if (stage.get(r, "dayStart") && r.success) ds = r.intValue;
     if (stage.get(r, "dayEnd")   && r.success) de = r.intValue;
     if (currentDay < ds || currentDay > de) continue;
@@ -284,18 +281,20 @@ void loadProfileStage(const String& profileName, int currentDay) {
     if (stage.get(r, "servoHoldHours") && r.success) servoHoldMs = (unsigned long)(r.floatValue * 3600000.0f);
     if (stage.get(r, "turning")        && r.success) turningEnabled  = r.boolValue;
     thresholdReady = true;
+    found = true;
 
-    // Task 2.2: แจ้งเตือนเมื่อเข้า Lockdown
     if (prevTurning && !turningEnabled) {
       resetServo();
       sendLineAlert("เข้าสู่ระยะ Lockdown — หยุดพลิกไข่แล้ว\n");
     }
-    Serial.printf("[Profile] %s day %d stage[%s] T:%.1f-%.1f H:%.0f-%.0f Turn:%d\n",
-      profileName.c_str(), currentDay, key.c_str(),
-      heater_off_temp, fan_temp, hum_on, hum_off, turningEnabled);
-    break;
+    Serial.printf("[Profile] day%d→stage%d T:%.1f-%.1f H:%.0f-%.0f Turn:%d\n",
+      currentDay, idx, heater_off_temp, fan_temp, hum_on, hum_off, (int)turningEnabled);
   }
-  stages.iteratorEnd();
+
+  if (!found) {
+    // fallback: อ่าน threshold จาก /incubator/control โดยตรง
+    Serial.printf("[Profile] no match day=%d, reading from control\n", currentDay);
+  }
 }
 
 // ===== Task 3.2: Candling — กำหนดวันตาม profile =====
@@ -357,7 +356,6 @@ void readControlFromFirebase() {
   if (useProfile && startTimeMs > 0) {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
-      // clamp currentDay ≥ 1 (ป้องกัน startTimeMs ในอนาคต)
       int currentDay = max(1, (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset);
       if (currentDay != lastProfileDay || !thresholdReady) {
         lastProfileDay = currentDay;
@@ -365,17 +363,22 @@ void readControlFromFirebase() {
         checkCandlingAlert(currentDay);
       }
     }
-  } else {
-    // custom หรือ startTimeMs=0 — อ่านค่าตรงจาก control
+  }
+
+  // fallback: ถ้า thresholdReady ยังเป็น false ให้อ่านจาก control โดยตรง
+  // (ครอบคลุมทั้ง custom mode และกรณี loadProfileStage ไม่ match)
+  if (!thresholdReady) {
     bool ok1=false, ok2=false, ok3=false, ok4=false;
     if (json.get(r,"tempMin")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { heater_off_temp=r.floatValue; ok1=true; }
     if (json.get(r,"tempMax")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { fan_temp=r.floatValue;        ok2=true; }
     if (json.get(r,"humMin") &&r.success&&r.floatValue>=30&&r.floatValue<=90) { hum_on=r.floatValue;          ok3=true; }
     if (json.get(r,"humMax") &&r.success&&r.floatValue>=30&&r.floatValue<=90) { hum_off=r.floatValue; fan_hum=r.floatValue+5.0f; ok4=true; }
-    if (ok1&&ok2&&ok3&&ok4) thresholdReady = true;
+    if (ok1&&ok2&&ok3&&ok4) {
+      thresholdReady = true;
+      Serial.println("[Fallback] threshold from control OK");
+    }
     if (json.get(r,"servoHoldHours")&&r.success&&r.floatValue>=0.1f&&r.floatValue<=24.0f)
       servoHoldMs = (unsigned long)(r.floatValue * 3600000.0f);
-    // turningEnabled ใช้จาก "turning" field ที่อ่านไปแล้ว
   }
 }
 
