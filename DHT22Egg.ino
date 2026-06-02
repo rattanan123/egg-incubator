@@ -324,7 +324,21 @@ void readControlFromFirebase() {
 
   if (json.get(r, "system") && r.success) systemState = r.stringValue;
 
-  // อ่าน turning จาก control (เว็บส่งมาตอนเริ่ม เพื่อให้ servo ถูกต้องทันที)
+  // ── อ่าน startTime / startDayOffset ก่อน เพื่อให้ useProfile ทำงานถูกต้องทันที ──
+  if (json.get(r,"endTime")&&r.success)        endTimeMs      = (long long)r.doubleValue;
+  if (json.get(r,"startDayOffset")&&r.success) startDayOffset = r.intValue;
+  if (json.get(r,"startTime")&&r.success) {
+    static long long lastST = 0;
+    long long st = (long long)r.doubleValue;
+    if (st != lastST) {
+      lastST = st; startTimeMs = st;
+      alertedOneDay = alertedThirtyMin = alertedDone = false;
+      lastProfileDay = -1;
+      for (int i = 0; i < 5; i++) candlingAlerted[i] = false;
+    }
+  }
+
+  // อ่าน turning จาก control (fallback กรณี profile โหลดไม่ทัน)
   if (json.get(r, "turning") && r.success) turningEnabled = r.boolValue;
 
   // ตรวจ active profile
@@ -341,7 +355,6 @@ void readControlFromFirebase() {
     long long nowMs = getNTPTime();
     if (nowMs > 0) {
       // บวก startDayOffset เพื่อให้ตรงกับ stage ที่เลือกเริ่ม
-      // เช่น เริ่มที่ stage 3 (dayStart=19) → offset=18 → วันที่ 1 = day 19
       int currentDay = (int)((nowMs - startTimeMs) / 86400000LL) + 1 + startDayOffset;
       if (currentDay != lastProfileDay) {
         lastProfileDay = currentDay;
@@ -349,8 +362,8 @@ void readControlFromFirebase() {
         checkCandlingAlert(currentDay);
       }
     }
-  } else {
-    // ไม่มี profile — อ่านค่าตรงจาก control
+  } else if (!useProfile) {
+    // ไม่มี profile (custom) — อ่านค่าตรงจาก control
     bool ok1=false, ok2=false, ok3=false, ok4=false;
     if (json.get(r,"tempMin")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { heater_off_temp=r.floatValue; ok1=true; }
     if (json.get(r,"tempMax")&&r.success&&r.floatValue>=30&&r.floatValue<=42) { fan_temp=r.floatValue;        ok2=true; }
@@ -361,19 +374,8 @@ void readControlFromFirebase() {
       servoHoldMs = (unsigned long)(r.floatValue * 3600000.0f);
     turningEnabled = true;
   }
-
-  if (json.get(r,"endTime")&&r.success)       endTimeMs     = (long long)r.doubleValue;
-  if (json.get(r,"startDayOffset")&&r.success) startDayOffset = r.intValue;
-  if (json.get(r,"startTime")&&r.success) {
-    static long long lastST = 0;
-    long long st = (long long)r.doubleValue;
-    if (st != lastST) {
-      lastST = st; startTimeMs = st;
-      alertedOneDay = alertedThirtyMin = alertedDone = false;
-      lastProfileDay = -1;
-      for (int i = 0; i < 5; i++) candlingAlerted[i] = false;
-    }
-  }
+  // หมายเหตุ: else ตรงกลาง (useProfile=true แต่ startTimeMs=0) ไม่แตะ turningEnabled
+  //            ให้ค่าจาก "turning" field ที่อ่านไปแล้วทำงาน
 }
 
 // ===== Send Current =====
