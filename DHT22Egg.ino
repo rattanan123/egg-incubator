@@ -176,7 +176,7 @@ void moveTo(int target) {
 }
 
 // Servo state machine:
-//   0–7: cycle 135→hold→90→hold→45→hold→90→hold→repeat
+//   0–7: cycle 90→hold→135→hold→90→hold→45→hold→90→hold→repeat
 //   8:   return to 90° (reset)
 //   9:   STOPPED
 void handleServo() {
@@ -566,7 +566,7 @@ void loop() {
     if (servoState == 9) servoStartRequest = true;
     Serial.println("[RUN] system started");
     sendLineForce(turningEnabled
-      ? "ระบบตู้ฟักไข่เริ่มทำงานแล้ว\nServo: 135°→hold→90°→hold→45°→hold→90°→hold→วน\n"
+      ? "ระบบตู้ฟักไข่เริ่มทำงานแล้ว\nServo: 90°→hold→135°→hold→90°→hold→45°→hold→90°→hold→วน\n"
       : "ระบบตู้ฟักไข่เริ่มทำงานแล้ว (Lockdown — หยุดพลิกไข่)\n");
   }
 
