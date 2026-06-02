@@ -464,6 +464,24 @@
     </ul>
   </div>
 
+  <!-- LINE Notify Token -->
+  <div class="card" id="line-card">
+    <div class="card-title" style="margin-bottom:12px;">🔔 LINE Notify</div>
+    <div class="ig" style="gap:8px;">
+      <div class="ilabel">LINE Notify Token</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="iwrap" style="flex:1;">
+          <input class="ifield" type="password" id="line-tok"
+            placeholder="วาง Token ที่นี่"
+            style="font-size:16px;padding:10px 14px;padding-right:14px;">
+        </div>
+        <button class="btn-go" id="line-save-btn" onclick="saveLineToken()" style="padding:10px 20px;font-size:16px;white-space:nowrap;">บันทึก</button>
+      </div>
+      <div class="ihint">สร้าง Token ได้ที่ <a href="https://notify-bot.line.me/" target="_blank" style="color:var(--gr)">notify-bot.line.me</a> · แจ้งเตือนเมื่อ เริ่ม / หยุด / ค่าผิดปกติ</div>
+      <div id="line-status" style="font-size:13px;color:var(--mu);margin-top:2px;"></div>
+    </div>
+  </div>
+
   <!-- Task 2.4: Chart with time range tabs -->
   <div class="cwrap">
     <div class="cheader">
@@ -662,6 +680,51 @@ let currentRunEndMs=0;
 let isLockdownStage=false;
 let lastAutoStageIdx=-1;
 let allHourlyLogs={};  // cache สำหรับ Export CSV
+
+// ── LINE Notify ──
+let lineToken = localStorage.getItem('lineToken') || '';
+let curHumMax = 999, curHumMin = 0, curTempMax = 999, curTempMin = 0;
+let lastLineAlert = {hum: 0, temp: 0};
+const LINE_COOLDOWN = 30 * 60 * 1000; // 30 นาที
+
+async function sendLine(msg) {
+  const tok = lineToken;
+  if (!tok) return;
+  try {
+    const res = await fetch(
+      'https://corsproxy.io/?' + encodeURIComponent('https://notify-api.line.me/api/notify'),
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + tok,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'message=' + encodeURIComponent('\n' + msg)
+      }
+    );
+    const ok = res.status === 200;
+    const el = $('line-status');
+    if (el) {
+      el.textContent = ok ? '✓ ส่งสำเร็จ ' + new Date().toLocaleTimeString('th-TH') : '✗ ส่งไม่สำเร็จ (status ' + res.status + ')';
+      el.style.color = ok ? 'var(--gr)' : 'var(--rd)';
+    }
+  } catch(e) {
+    const el = $('line-status');
+    if (el) { el.textContent = '✗ เชื่อมต่อล้มเหลว'; el.style.color = 'var(--rd)'; }
+  }
+}
+
+async function saveLineToken() {
+  const tok = ($('line-tok').value || '').trim();
+  lineToken = tok;
+  localStorage.setItem('lineToken', tok);
+  const btn = $('line-save-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ บันทึกแล้ว';
+  setTimeout(() => { btn.textContent = orig; }, 2000);
+  if (tok) sendLine('🥚 ProjectEgg เชื่อมต่อสำเร็จ! ระบบแจ้งเตือนพร้อมใช้งาน');
+}
+window.saveLineToken = saveLineToken;
 
 function inputs() {
   return {
@@ -928,10 +991,15 @@ async function startSys() {
     });
   }
 
+  // คำนวณ startDayOffset เพื่อให้ ESP32 รู้ว่าเริ่มจากวันที่เท่าไหร่
+  const stageList = Object.values(isCustom ? {} : PROFILES[currentProfileKey].stages);
+  const startDayOffset = (stageList[selectedStageIdx]?.dayStart ?? 1) - 1;
+
   await update(ref(db,"incubator/control"),{
     system:"RUN", tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax,
     durationMs, startTime:st, endTime:et, servoHoldHours:servoH,
-    activeProfile:currentProfileKey, startStageIdx:selectedStageIdx, eggCount
+    activeProfile:currentProfileKey, startStageIdx:selectedStageIdx, eggCount,
+    startDayOffset
   });
   updateUI("RUN"); startCD(et);
 
@@ -957,6 +1025,11 @@ async function startSys() {
     eggCount, status:"running",
     tempMin:tMin, tempMax:tMax, humMin:hMin, humMax:hMax
   });
+
+  // LINE: แจ้งเตือนเริ่มระบบ
+  const stageName = currentProfileKey==="custom" ? "กำหนดเอง"
+    : Object.values(PROFILES[currentProfileKey].stages)[selectedStageIdx]?.name || currentProfileKey;
+  sendLine(`🥚 เริ่มฟักไข่แล้ว!\nช่วง: ${stageName}\nอุณหภูมิ: ${tMin}–${tMax}°C\nความชื้น: ${hMin}–${hMax}%\nไข่: ${eggCount} ฟอง`);
 }
 
 async function stopSys() {
@@ -968,6 +1041,9 @@ async function stopSys() {
   // อัปเดตสถานะรอบ
   if(currentRunStartTime>0)
     await update(ref(db,"incubator/runs/"+currentRunStartTime),{status:"stopped",endTime:Date.now()});
+
+  // LINE: แจ้งเตือนหยุดระบบ
+  sendLine(`⏹ หยุดระบบตู้ฟักไข่แล้ว\nเวลา: ${new Date().toLocaleString('th-TH')}`);
 }
 
 // ── Dialog ──
@@ -1150,6 +1226,9 @@ function toggleTheme(){
 window.toggleTheme=toggleTheme;
 applyTheme(localStorage.getItem('theme')==='dark');
 
+// โหลด LINE token เข้า input
+if (lineToken && $('line-tok')) $('line-tok').value = lineToken;
+
 // ── Firebase load + listeners ──
 onProfileChange(); // ซ่อน/แสดง manual-inputs ตาม default profile
 get(ref(db,"incubator/control")).then(snap=>{
@@ -1158,6 +1237,9 @@ get(ref(db,"incubator/control")).then(snap=>{
     const f=inputs();
     if(c.tempMin)f.tMin.value=c.tempMin; if(c.tempMax)f.tMax.value=c.tempMax;
     if(c.humMin) f.hMin.value=c.humMin;  if(c.humMax) f.hMax.value=c.humMax;
+    // เก็บ threshold สำหรับ LINE alert
+    if(c.tempMin) curTempMin=c.tempMin; if(c.tempMax) curTempMax=c.tempMax;
+    if(c.humMin)  curHumMin=c.humMin;   if(c.humMax)  curHumMax=c.humMax;
     const ms=c.durationMs||((c.durationDays||0)*86400000);
     if(ms>0){
       f.durDays.value=Math.floor(ms/86400000)||'';
@@ -1185,6 +1267,13 @@ get(ref(db,"incubator/control")).then(snap=>{
 
 function setupListeners(){
 
+// /control — อัปเดต threshold สำหรับ LINE alert
+onValue(ref(db,"incubator/control"),snap=>{
+  const c=snap.val(); if(!c)return;
+  if(c.tempMin) curTempMin=c.tempMin; if(c.tempMax) curTempMax=c.tempMax;
+  if(c.humMin)  curHumMin=c.humMin;   if(c.humMax)  curHumMax=c.humMax;
+});
+
 // /current — real-time
 onValue(ref(db,"incubator/current"),snap=>{
   const d=snap.val(); if(!d)return;
@@ -1211,6 +1300,29 @@ onValue(ref(db,"incubator/current"),snap=>{
 
   setMetric("ct","temp",d.temp);
   setMetric("ch","hum",d.humidity);
+
+  // ── LINE alert: sensor out-of-range (cooldown 30 นาที) ──
+  if(lineToken && ns==="RUN") {
+    const now=Date.now();
+    const h=parseFloat(d.humidity), t=parseFloat(d.temp);
+    if(!isNaN(h) && h > curHumMax+3 && now-lastLineAlert.hum > LINE_COOLDOWN) {
+      lastLineAlert.hum=now;
+      sendLine(`💧 ความชื้นสูงเกิน!\nความชื้น: ${h.toFixed(1)}% (เป้า ≤${curHumMax}%)\nตรวจสอบระบบหมอก`);
+    }
+    if(!isNaN(h) && h < curHumMin-3 && now-lastLineAlert.hum > LINE_COOLDOWN) {
+      lastLineAlert.hum=now;
+      sendLine(`💧 ความชื้นต่ำเกิน!\nความชื้น: ${h.toFixed(1)}% (เป้า ≥${curHumMin}%)\nตรวจสอบน้ำในระบบหมอก`);
+    }
+    if(!isNaN(t) && t > curTempMax+1 && now-lastLineAlert.temp > LINE_COOLDOWN) {
+      lastLineAlert.temp=now;
+      sendLine(`🌡️ อุณหภูมิสูงเกิน!\nอุณหภูมิ: ${t.toFixed(1)}°C (เป้า ≤${curTempMax}°C)\nตรวจสอบฮีตเตอร์/พัดลม`);
+    }
+    if(!isNaN(t) && t < curTempMin-1 && now-lastLineAlert.temp > LINE_COOLDOWN) {
+      lastLineAlert.temp=now;
+      sendLine(`🌡️ อุณหภูมิต่ำเกิน!\nอุณหภูมิ: ${t.toFixed(1)}°C (เป้า ≥${curTempMin}°C)\nตรวจสอบฮีตเตอร์`);
+    }
+  }
+
   setBadge("r1",d.relay?.fog);setBadge("r2",d.relay?.fanMain);
   setBadge("r3",d.relay?.fan3);setBadge("r4",d.relay?.fan4);setBadge("r5",d.relay?.heater);
   $('sstatus').textContent=d.servo?.status??"--"; $('sstatus').className='badge';
